@@ -8,9 +8,10 @@ from PySide6.QtCore import Qt
 from ..components.line_edit import ModernLineEdit
 from ..components.primary_button import PrimaryButton
 from ..components.primary_label import PrimaryLabel
-from ..components.signup_form import SignupForm
-from ..components.login_form import LoginForm
-from ..components.forgot_password_form import ForgotPasswordForm
+from ..components.forms.signup import SignupForm
+from ..components.forms.login import LoginForm
+from ..components.forms.forgot_password import ForgotPasswordForm
+from ..components.forms.verify_code import VerifyCodeForm
 
 from ..controllers.authentication import AuthenticationController
 
@@ -34,12 +35,14 @@ class AuthenticationView(QWidget):
         self.login_form = LoginForm()
         self.signup_form = SignupForm()
         self.forgot_form = ForgotPasswordForm()
+        self.verify_form = VerifyCodeForm()
 
         self.controller.setup_connections()
 
-        _ = self.stack.addWidget(self.login_form)
-        _ = self.stack.addWidget(self.signup_form)
-        _ = self.stack.addWidget(self.forgot_form)
+        self.stack.addWidget(self.login_form)
+        self.stack.addWidget(self.signup_form)
+        self.stack.addWidget(self.forgot_form)
+        self.stack.addWidget(self.verify_form)
 
         container = QWidget()
         container.setLayout(self.stack)

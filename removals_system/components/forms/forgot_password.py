@@ -4,18 +4,19 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
-from ..components.form import Form
-from ..config.constants import ASSET_MAP
+from ...config.constants import ASSET_MAP
 
-from .line_edit import ModernLineEdit
-from .primary_button import PrimaryButton
-from .primary_label import PrimaryLabel
+from ..line_edit import ModernLineEdit
+from ..primary_button import PrimaryButton
+from ..primary_label import PrimaryLabel
+
+from .form import Form
 
 from typing import final
 
 
 @final
-class LoginForm(QWidget, Form):
+class ForgotPasswordForm(QWidget, Form):
     def __init__(self):
         super().__init__()
 
@@ -36,46 +37,41 @@ class LoginForm(QWidget, Form):
         layout.addSpacing(40)
         layout.addWidget(logo_label)
 
-        title_label = QLabel("Sign in")
+        title_label = QLabel("Forgot your password?")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setFont(QFont("Albert Sans", 16, QFont.Bold))
+
+        caption_label = QLabel(
+            "Receive a code to your email address to reset it"
+        )
+        caption_label.setAlignment(Qt.AlignCenter)
+        caption_label.setFont(QFont("Albert Sans", 12))
 
         layout.addWidget(logo_label)
         layout.addSpacing(40)
         layout.addWidget(title_label)
+        layout.addSpacing(4)
+        layout.addWidget(caption_label)
         layout.addSpacing(40)
 
         self.email_input = ModernLineEdit("Email", name="email")
         layout.addWidget(self.email_input)
-
-        self.password_input = ModernLineEdit("Password", name="password")
-        self.password_input.setEchoMode(QLineEdit.Password)
-        layout.addWidget(self.password_input)
-
-        self.forgot_password_prompt = PrimaryLabel("""
-            <a href="forgot-password"><span style="color:#89a69f;"> 
-                Forgot password?
-            </span></a>
-        """)
-        self.forgot_password_prompt.setAlignment(Qt.AlignRight)
-
-        layout.addWidget(self.forgot_password_prompt)
         layout.addSpacing(40)
 
-        self.sign_in_button = PrimaryButton("Sign in")
-        layout.addWidget(self.sign_in_button)
+        self.primary_button = PrimaryButton("Send recovery email")
+        layout.addWidget(self.primary_button)
 
         layout.addStretch()
 
-        self.sign_up_prompt = PrimaryLabel("""
-            <span style="font-weight: bold;">New to us?</span>
-            Create your
-            <a href="sign-up"><span style="color:#89a69f;">account</span></a>,
-            and let us make your life easier.
+        self.signin_signup_prompt = PrimaryLabel("""
+            <span style="font-weight: bold;">Done?</span>
+            Click to
+            <a href="sign-in"><span style="color:#89a69f;">sign in</span></a>
+            or
+            <a href="sign-up"><span style="color:#89a69f;">register</span></a>
         """)
-        layout.addWidget(self.sign_up_prompt)
+        layout.addWidget(self.signin_signup_prompt)
 
         self.fields = (
             self.email_input,
-            self.password_input
         )

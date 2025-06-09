@@ -12,13 +12,17 @@ class AuthenticationController:
         self.view = view
 
     def setup_connections(self):
-        self.view.login_form.sign_in_button.clicked.connect(self.handle_signin)
-        self.view.signup_form.sign_up_button.clicked.connect(self.handle_signup)
+        self.view.login_form.on_submit(self.handle_signin)
+        self.view.signup_form.on_submit(self.handle_signup)
+        self.view.forgot_form.on_submit(self.handle_forgot_password)
+        self.view.verify_form.on_submit(self.handle_code_verify)
+
         self.register_view_change_connections(
             self.view.signup_form.sign_in_prompt,
             self.view.login_form.sign_up_prompt,
-            self.view.forgot_form.forgot_password_prompt,
-            self.view.login_form.forgot_password_prompt
+            self.view.forgot_form.signin_signup_prompt,
+            self.view.login_form.forgot_password_prompt,
+            self.view.verify_form.signin_signup_prompt
         )
 
     def register_view_change_connections(self, *widgets: QWidget):
@@ -38,7 +42,6 @@ class AuthenticationController:
 
     def handle_signin(self):
         login_data = self.view.login_form.get_data()
-        self.view.login_form.reset_state()
         
         if self.view.login_form.is_empty_fields():
             return
@@ -54,7 +57,6 @@ class AuthenticationController:
 
     def handle_signup(self):
         signup_data = self.view.signup_form.get_data()
-        self.view.signup_form.reset_state()
 
         if self.view.signup_form.is_empty_fields():
             return
@@ -72,8 +74,31 @@ class AuthenticationController:
             self.view.signup_form.email_input.set_state("error")
             return
 
+    def handle_forgot_password(self) -> None:
+        email = self.view.forgot_form.get_data()['email']
+
+        if self.view.forgot_form.is_empty_fields():
+            return
+
+        if not exists_email(email):
+            self.view.forgot_form.email_input.set_state("error")
+            return
         
-        
+        self.show_verify_code_panel()
+
+    def handle_code_verify(self) -> None:
+        verify_data = self.view.verify_form.get_data()
+
+        if self.view.verify_form.is_empty_fields():
+            return
+
+        if verify_data['password'] != verify_data['confirm']:
+            self.view.verify_form.password_input.set_state("error")
+            self.view.verify_form.confirm_password_input.set_state("error")
+            return
+
+        print("Pretending to verify code:", verify_data['code'])
+        self.show_login_panel()
 
     def show_login_panel(self) -> None:
         self.view.stack.setCurrentIndex(0)
@@ -83,3 +108,6 @@ class AuthenticationController:
 
     def show_forgot_password_panel(self) -> None:
         self.view.stack.setCurrentIndex(2)
+    
+    def show_verify_code_panel(self) -> None:
+        self.view.stack.setCurrentIndex(3)

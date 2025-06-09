@@ -5,12 +5,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
-from ..components.form import Form
-from ..config.constants import ASSET_MAP
+from ...config.constants import ASSET_MAP
 
-from .line_edit import ModernLineEdit
-from .primary_button import PrimaryButton
-from .primary_label import PrimaryLabel
+from ..line_edit import ModernLineEdit
+from ..primary_button import PrimaryButton
+from ..primary_label import PrimaryLabel
+
+from .form import Form
 
 
 @final
@@ -77,8 +78,8 @@ class SignupForm(QWidget, Form):
         layout.addWidget(self.confirm_password_input)
         layout.addSpacing(40)
 
-        self.sign_up_button = PrimaryButton("Sign up")
-        layout.addWidget(self.sign_up_button)
+        self.primary_button = PrimaryButton("Sign up")
+        layout.addWidget(self.primary_button)
         layout.addSpacing(40)
         layout.addStretch()
 
