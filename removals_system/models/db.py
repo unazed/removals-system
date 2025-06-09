@@ -20,7 +20,7 @@ def call_proc(proc_name: str, params=()) -> list[DictRow]:
         conn.close()
 
 
-def proc_login_user(email: str, password: str) -> list[str | None]:
+def proc_login_user(email: str, password: str) -> list[str] | None:
     return call_proc('login_user', (email, password))
     
     
