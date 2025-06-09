@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget
 
 from ..exceptions.auth_exceptions import InvalidCredentialsError
-from ..models.user import User
+from ..models.user import User, exists_email, is_valid_email
 
 from typing import final
 
@@ -38,17 +38,42 @@ class AuthenticationController:
 
     def handle_signin(self):
         login_data = self.view.login_form.get_data()
+        self.view.login_form.reset_state()
+        
+        if self.view.login_form.is_empty_fields():
+            return
+
         try:
             user = User(**login_data)
         except InvalidCredentialsError:
-            self.view.login_form.email_input.set_invalid_state()
-            self.view.login_form.password_input.set_invalid_state()
+            self.view.login_form.email_input.set_state("error")
+            self.view.login_form.password_input.set_state("error")
             return
-        print(f"{user.role=}, {user.token=}")
-                
+        
+        # TODO: go-to customer/SP dashboard
 
     def handle_signup(self):
         signup_data = self.view.signup_form.get_data()
+        self.view.signup_form.reset_state()
+
+        if self.view.signup_form.is_empty_fields():
+            return
+
+        if signup_data['password'] != signup_data['confirm']:
+            self.view.signup_form.password_input.set_state("error")
+            self.view.signup_form.confirm_password_input.set_state("error")
+            return
+        
+        if not is_valid_email(signup_data['email']):
+            self.view.signup_form.email_input.set_state("error")
+            return
+
+        if exists_email(signup_data['email']):
+            self.view.signup_form.email_input.set_state("error")
+            return
+
+        
+        
 
     def show_login_panel(self) -> None:
         self.view.stack.setCurrentIndex(0)

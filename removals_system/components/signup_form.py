@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
+from ..components.form import Form
 from ..config.constants import ASSET_MAP
 
 from .line_edit import ModernLineEdit
@@ -13,7 +14,7 @@ from .primary_label import PrimaryLabel
 
 
 @final
-class SignupForm(QWidget):
+class SignupForm(QWidget, Form):
     def __init__(self):
         super().__init__()
 
@@ -43,7 +44,7 @@ class SignupForm(QWidget):
         layout.addWidget(title_label)
         layout.addSpacing(40)
 
-        self.email_input = ModernLineEdit("Email")
+        self.email_input = ModernLineEdit("Email", name="email")
         layout.addWidget(self.email_input)
 
         name_inputs = QWidget()
@@ -51,8 +52,8 @@ class SignupForm(QWidget):
         name_layout.setContentsMargins(0, 0, 0, 0)
         name_layout.setSpacing(12)
 
-        self.forename_input = ModernLineEdit("Forename")
-        self.surname_input = ModernLineEdit("Surname")
+        self.forename_input = ModernLineEdit("Forename", name="forename")
+        self.surname_input = ModernLineEdit("Surname", name="surname")
 
         self.forename_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred
@@ -65,12 +66,12 @@ class SignupForm(QWidget):
         name_layout.addWidget(self.surname_input)
         layout.addWidget(name_inputs)
 
-        self.password_input = ModernLineEdit("Password")
+        self.password_input = ModernLineEdit("Password", name="password")
         self.password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.password_input)
 
         self.confirm_password_input = ModernLineEdit(
-            "Confirm password"
+            "Confirm password", name="confirm"
         )
         self.confirm_password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.confirm_password_input)
@@ -88,11 +89,10 @@ class SignupForm(QWidget):
         """)
         layout.addWidget(self.sign_in_prompt)
 
-    def get_data(self) -> dict[str, str]:
-        return {
-            "email": self.email_input.text(),
-            "forename": self.forename_input.text(),
-            "surname": self.surname_input.text(),
-            "password": self.password_input.text(),
-            "confirm": self.confirm_password_input.text()
-        }
+        self.fields = (
+            self.email_input,
+            self.forename_input,
+            self.surname_input,
+            self.password_input,
+            self.confirm_password_input
+        )

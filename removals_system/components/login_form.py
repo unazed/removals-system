@@ -4,14 +4,18 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
+from ..components.form import Form
 from ..config.constants import ASSET_MAP
 
 from .line_edit import ModernLineEdit
 from .primary_button import PrimaryButton
 from .primary_label import PrimaryLabel
 
+from typing import final
 
-class LoginForm(QWidget):
+
+@final
+class LoginForm(QWidget, Form):
     def __init__(self):
         super().__init__()
 
@@ -41,10 +45,10 @@ class LoginForm(QWidget):
         layout.addWidget(title_label)
         layout.addSpacing(40)
 
-        self.email_input = ModernLineEdit("Email")
+        self.email_input = ModernLineEdit("Email", name="email")
         layout.addWidget(self.email_input)
 
-        self.password_input = ModernLineEdit("Password")
+        self.password_input = ModernLineEdit("Password", name="password")
         self.password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.password_input)
 
@@ -70,9 +74,8 @@ class LoginForm(QWidget):
             and let us make your life easier.
         """)
         layout.addWidget(self.sign_up_prompt)
-    
-    def get_data(self) -> dict[str, str]:
-        return {
-            "email": self.email_input.text(),
-            "password": self.password_input.text()
-        }
+
+        self.fields = (
+            self.email_input,
+            self.password_input
+        )

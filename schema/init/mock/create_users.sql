@@ -9,7 +9,8 @@ BEGIN
         'Smith',
         'alice@example.com',
         DATE '1995-04-15',
-        'supersecret123'
+        'supersecret123',
+        'customer'
     );
 
     IF reg_token IS NULL THEN

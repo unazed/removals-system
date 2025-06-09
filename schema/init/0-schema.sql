@@ -12,13 +12,6 @@ BEGIN;
 COMMIT;
 
 BEGIN;
-  \i 'triggers/bids.sql'
-  \i 'triggers/items.sql'
-  \i 'triggers/users.sql'
-  \i 'triggers/orders.sql'
-COMMIT;
-
-BEGIN;
   \i 'init/1-types.sql'
   \i 'init/2-countries.sql'
 COMMIT;
@@ -29,8 +22,17 @@ BEGIN;
   \i 'init/proc/get_envvars.sql'
   \i 'init/proc/login.sql'
   \i 'init/proc/register.sql'
+  \i 'init/proc/email.sql'
+COMMIT;
+
+BEGIN;
+  \i 'init/proc/triggers/bids.sql'
+  \i 'init/proc/triggers/items.sql'
+  \i 'init/proc/triggers/users.sql'
+  \i 'init/proc/triggers/orders.sql'
 COMMIT;
 
 BEGIN;
   \i 'init/4-permissions.sql'
+  \i 'init/5-triggers.sql'
 COMMIT;
