@@ -1,0 +1,1 @@
+SET app.jwt_secret = 'my-jwt-secret';
