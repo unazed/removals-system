@@ -1,6 +1,8 @@
+from operator import call
 from PySide6.QtWidgets import QWidget, QMessageBox
 
 from typing import final
+from ..models.user import 
 
 
 @final
@@ -9,15 +11,20 @@ class AuthenticationController:
         self.view = view
 
     def setup_connections(self):
-        self.view.sign_in_button.clicked.connect(self.handle_signin)
-        self.view.sign_up_button.clicked.connect(self.handle_signup)
-        self.view.sign_in_prompt.linkActivated.connect(self.handle_link_clicked)
-        self.view.sign_up_prompt.linkActivated.connect(self.handle_link_clicked)
-        self.view.forgot_password_prompt.linkActivated.connect(
-            self.handle_link_clicked
+        self.view.login_form.sign_in_button.clicked.connect(self.handle_signin)
+        self.view.signup_form.sign_up_button.clicked.connect(self.handle_signup)
+        self.register_view_change_connections(
+            self.view.signup_form.sign_in_prompt,
+            self.view.login_form.sign_up_prompt,
+            self.view.forgot_form.forgot_password_prompt,
+            self.view.login_form.forgot_password_prompt
         )
 
-    def handle_link_clicked(self, link: str) -> None:
+    def register_view_change_connections(self, *widgets: QWidget):
+        for widget in widgets:
+            widget.linkActivated.connect(self.handle_view_link_clicked)
+
+    def handle_view_link_clicked(self, link: str) -> None:
         match link:
             case 'sign-in':
                 self.show_login_panel()
@@ -29,8 +36,8 @@ class AuthenticationController:
                 raise ValueError(f"Invalid authentication link: {link!r}")
 
     def handle_signin(self):
-        QMessageBox.information(self.view, "Success", "Signed in!")
-        self.show_login_panel()
+        login_data = self.view.login_form.get_data()
+        
 
     def handle_signup(self):
         QMessageBox.information(self.view, "Success", "Account created!")

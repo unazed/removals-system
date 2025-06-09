@@ -120,6 +120,8 @@ BEGIN
   GRANT EXECUTE ON FUNCTION register_user(TEXT, TEXT, TEXT, DATE, TEXT, TEXT, TEXT, INTEGER)
     TO app_guest;
 
+  SET ROLE app_guest;
+
   reg_token := register_user(
     'Alice',
     'Smith',
