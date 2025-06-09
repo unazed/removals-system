@@ -1,8 +1,9 @@
-from operator import call
 from PySide6.QtWidgets import QWidget, QMessageBox
 
+from ..exceptions.auth_exceptions import InvalidCredentialsError
+from ..models.user import User
+
 from typing import final
-from ..models.user import 
 
 
 @final
@@ -37,6 +38,12 @@ class AuthenticationController:
 
     def handle_signin(self):
         login_data = self.view.login_form.get_data()
+        try:
+            user = User(**login_data)
+        except InvalidCredentialsError:
+            QMessageBox.information(self.view, "Failed", "Invalid credentials")
+            return
+        QMessageBox.information(self.view, "Success", user.jwt_token)
         
 
     def handle_signup(self):
