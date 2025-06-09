@@ -9,19 +9,28 @@ BEGIN;
   \i 'users.sql'
   \i 'items.sql'
   \i 'orders.sql'
+COMMIT;
 
+BEGIN;
   \i 'triggers/bids.sql'
   \i 'triggers/items.sql'
   \i 'triggers/users.sql'
   \i 'triggers/orders.sql'
+COMMIT;
 
+BEGIN;
   \i 'init/1-types.sql'
   \i 'init/2-countries.sql'
+COMMIT;
 
-  \i 'init/3-envvars.sql'
-  \i 'init/4-permissions.sql'
+\i 'init/3-envvars.sql'
 
+BEGIN;
   \i 'init/proc/get_envvars.sql'
   \i 'init/proc/login.sql'
   \i 'init/proc/register.sql'
+COMMIT;
+
+BEGIN;
+  \i 'init/4-permissions.sql'
 COMMIT;

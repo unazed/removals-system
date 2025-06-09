@@ -7,6 +7,8 @@ from typing import final
 @final
 class User:
     def __init__(self, email: str, password: str) -> None:
-        self.jwt_token = db.proc_login_user(email, password)
-        if self.jwt_token is None:
+        query = db.proc_login_user(email, password)
+        print(query)
+        if query[0] is None:
             raise InvalidCredentialsError
+        self.token, self.role = query

@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QLineEdit, QLabel, QVBoxLayout, QWidget
-from PySide6.QtCore import Qt, QEvent, QEasingCurve, QPropertyAnimation, QRect
-from PySide6.QtGui import QAction, QFont, QIcon
+from PySide6.QtWidgets import QLineEdit, QLabel, QWidget
+from PySide6.QtCore import QEvent
+from PySide6.QtGui import QAction, QIcon
 
 from typing import final
 

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QMessageBox
+from PySide6.QtWidgets import QWidget
 
 from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User
@@ -34,7 +34,7 @@ class AuthenticationController:
             case 'forgot-password':
                 self.show_forgot_password_panel()
             case _:
-                raise ValueError(f"Invalid authentication link: {link!r}")
+                raise RuntimeError(f"Invalid authentication link: {link!r}")
 
     def handle_signin(self):
         login_data = self.view.login_form.get_data()
@@ -44,6 +44,7 @@ class AuthenticationController:
             self.view.login_form.email_input.set_invalid_state()
             self.view.login_form.password_input.set_invalid_state()
             return
+        print(f"{user.role=}, {user.token=}")
                 
 
     def handle_signup(self):
