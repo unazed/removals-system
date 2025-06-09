@@ -87,3 +87,12 @@ class SignupForm(QWidget):
             <a href="sign-in"><span style="color:#89a69f;">sign in</span></a>
         """)
         layout.addWidget(self.sign_in_prompt)
+
+    def get_data(self) -> dict[str, str]:
+        return {
+            "email": self.email_input.text(),
+            "forename": self.forename_input.text(),
+            "surname": self.surname_input.text(),
+            "password": self.password_input.text(),
+            "confirm": self.confirm_password_input.text()
+        }

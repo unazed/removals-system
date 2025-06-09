@@ -41,14 +41,13 @@ class AuthenticationController:
         try:
             user = User(**login_data)
         except InvalidCredentialsError:
-            QMessageBox.information(self.view, "Failed", "Invalid credentials")
+            self.view.login_form.email_input.set_invalid_state()
+            self.view.login_form.password_input.set_invalid_state()
             return
-        QMessageBox.information(self.view, "Success", user.jwt_token)
-        
+                
 
     def handle_signup(self):
-        QMessageBox.information(self.view, "Success", "Account created!")
-        self.show_login_panel()
+        signup_data = self.view.signup_form.get_data()
 
     def show_login_panel(self) -> None:
         self.view.stack.setCurrentIndex(0)

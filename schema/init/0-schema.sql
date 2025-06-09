@@ -15,9 +15,13 @@ BEGIN;
   \i 'triggers/users.sql'
   \i 'triggers/orders.sql'
 
-  \i 'init/init_types.sql'
-  \i 'init/init_countries.sql'
+  \i 'init/1-types.sql'
+  \i 'init/2-countries.sql'
 
-  \i 'init/init_envvars.sql'
-  \i 'init/init_permissions.sql'
+  \i 'init/3-envvars.sql'
+  \i 'init/4-permissions.sql'
+
+  \i 'init/proc/get_envvars.sql'
+  \i 'init/proc/login.sql'
+  \i 'init/proc/register.sql'
 COMMIT;

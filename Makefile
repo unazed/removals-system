@@ -6,7 +6,7 @@ DB		= psql
 DBNAME  = removals
 
 run: $(VENV)/bin/activate
-	$(PYTHON) main.py
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) main.py
 
 $(VENV)/bin/activate: requirements.txt
 	@command -v python3 -v > /dev/null || (echo "Error: `python3` not found on your system." && exit 1)
