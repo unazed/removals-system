@@ -3,6 +3,8 @@ from PySide6.QtWidgets import QWidget
 from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User, exists_email, is_valid_email
 
+from ..views.role_selection import RoleSelectionView
+
 from typing import final
 
 
@@ -73,6 +75,10 @@ class AuthenticationController:
         if exists_email(signup_data['email']):
             self.view.signup_form.email_input.set_state("error")
             return
+    
+        role_selection_view = RoleSelectionView(signup_data)
+        role_selection_view.show()
+        self.view.close()
 
     def handle_forgot_password(self) -> None:
         email = self.view.forgot_form.get_data()['email']

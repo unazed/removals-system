@@ -4,7 +4,8 @@ import os
 ASSET_MAP = {
     "hero-truck": ("assets", "hero-truck.png"),
     "logo-black": ("assets", "logo-black-transparent.png"),
-    "chevron-down": ("assets", "icons", "chevron-down.svg")
+    "customer-card": ("assets", "customer-placeholder.png"),
+    "service-provider-card": ("assets", "service-provider-placeholder.png")
 }
 
 for asset_name, asset_path in ASSET_MAP.items():
