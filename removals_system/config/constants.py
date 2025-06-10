@@ -1,7 +1,7 @@
 import os
 
 
-ASSET_MAP = {
+ASSET_MAP: dict[str, str] = {
     "hero-truck": ("assets", "hero-truck.png"),
     "logo-black": ("assets", "logo-black-transparent.png"),
     "customer-card": ("assets", "customer-placeholder.png"),

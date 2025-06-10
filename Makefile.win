@@ -6,10 +6,10 @@ DB		= psql
 DBNAME  = removals
 SYSPYTHON = py
 
-run: $(VENV)/bin/activate
+run: $(VENV)\Scripts\activate
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) main.py
 
-$(VENV)/bin/activate: requirements.txt
+$(VENV)\Scripts\activate: requirements.txt
 	@command -v $(SYSPYTHON) -v > /dev/null || (echo "Error: `python3` not found on your system." && exit 1)
 	$(SYSPYTHON) -m venv $(VENV)
 	$(PIP) install -r requirements.txt

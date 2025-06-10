@@ -1,13 +1,9 @@
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QHBoxLayout, QVBoxLayout, QStackedLayout
+    QWidget, QLabel, QHBoxLayout, QVBoxLayout, QStackedLayout
 )
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
-from ..components.line_edit import ModernLineEdit
-from ..components.primary_button import PrimaryButton
-from ..components.primary_label import PrimaryLabel
 from ..components.forms.signup import SignupForm
 from ..components.forms.login import LoginForm
 from ..components.forms.forgot_password import ForgotPasswordForm
@@ -32,6 +28,7 @@ class AuthenticationView(QWidget):
         main_layout.addWidget(self.create_branding_panel(), stretch=1)
 
         self.stack = QStackedLayout()
+        
         self.login_form = LoginForm()
         self.signup_form = SignupForm()
         self.forgot_form = ForgotPasswordForm()

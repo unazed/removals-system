@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..line_edit import ModernLineEdit
+from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
 
@@ -54,9 +54,9 @@ class VerifyCodeForm(QWidget, Form):
         layout.addWidget(caption_label)
         layout.addSpacing(40)
 
-        self.code_input = ModernLineEdit("Authentication code", name="code")
-        self.password_input = ModernLineEdit("Password", name="password")
-        self.confirm_password_input = ModernLineEdit(
+        self.code_input = LineEdit("Authentication code", name="code")
+        self.password_input = LineEdit("Password", name="password")
+        self.confirm_password_input = LineEdit(
             "Confirm password", name="confirm"
         )
         self.password_input.setEchoMode(QLineEdit.Password)

@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QVBoxLayout,
+    QWidget, QLabel, QVBoxLayout,
 )
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..line_edit import ModernLineEdit
+from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
 
@@ -54,7 +54,7 @@ class ForgotPasswordForm(QWidget, Form):
         layout.addWidget(caption_label)
         layout.addSpacing(40)
 
-        self.email_input = ModernLineEdit("Email", name="email")
+        self.email_input = LineEdit("Email", name="email")
         layout.addWidget(self.email_input)
         layout.addSpacing(40)
 

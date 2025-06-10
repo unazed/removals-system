@@ -6,7 +6,7 @@ from typing import final
 
 
 @final
-class ModernLineEdit(QWidget):
+class LineEdit(QWidget):
     PRIMARY_COLOR = "#ccc"
     FOCUS_COLOR = "#89a69f"
 

@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..line_edit import ModernLineEdit
+from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
 
@@ -46,10 +46,10 @@ class LoginForm(QWidget, Form):
         layout.addWidget(title_label)
         layout.addSpacing(40)
 
-        self.email_input = ModernLineEdit("Email", name="email")
+        self.email_input = LineEdit("Email", name="email")
         layout.addWidget(self.email_input)
 
-        self.password_input = ModernLineEdit("Password", name="password")
+        self.password_input = LineEdit("Password", name="password")
         self.password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.password_input)
 

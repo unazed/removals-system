@@ -13,7 +13,7 @@ BEGIN
   END LOOP;
 
   DROP ROLE IF EXISTS app_guest;
-  CREATE ROLE app_guest LOGIN NOINHERIT;
+  CREATE ROLE app_guest LOGIN PASSWORD 'app_guest' NOINHERIT;
   REVOKE ALL ON ALL TABLES IN SCHEMA public FROM app_guest;
 
   GRANT USAGE ON SCHEMA public TO app_guest;

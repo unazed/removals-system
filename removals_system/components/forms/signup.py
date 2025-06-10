@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..line_edit import ModernLineEdit
+from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
 
@@ -45,7 +45,7 @@ class SignupForm(QWidget, Form):
         layout.addWidget(title_label)
         layout.addSpacing(40)
 
-        self.email_input = ModernLineEdit("Email", name="email")
+        self.email_input = LineEdit("Email", name="email")
         layout.addWidget(self.email_input)
 
         name_inputs = QWidget()
@@ -53,8 +53,8 @@ class SignupForm(QWidget, Form):
         name_layout.setContentsMargins(0, 0, 0, 0)
         name_layout.setSpacing(12)
 
-        self.forename_input = ModernLineEdit("Forename", name="forename")
-        self.surname_input = ModernLineEdit("Surname", name="surname")
+        self.forename_input = LineEdit("Forename", name="forename")
+        self.surname_input = LineEdit("Surname", name="surname")
 
         self.forename_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred
@@ -67,11 +67,11 @@ class SignupForm(QWidget, Form):
         name_layout.addWidget(self.surname_input)
         layout.addWidget(name_inputs)
 
-        self.password_input = ModernLineEdit("Password", name="password")
+        self.password_input = LineEdit("Password", name="password")
         self.password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.password_input)
 
-        self.confirm_password_input = ModernLineEdit(
+        self.confirm_password_input = LineEdit(
             "Confirm password", name="confirm"
         )
         self.confirm_password_input.setEchoMode(QLineEdit.Password)

@@ -5,12 +5,19 @@ from ..models.user import User, exists_email, is_valid_email
 
 from ..views.role_selection import RoleSelectionView
 
-from typing import final
+from typing import final, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..components.primary_label import PrimaryLabel
+    from ..components.forms.login import LoginForm
+    from ..components.forms.signup import SignupForm
+    from ..components.forms.forgot_password import ForgotPasswordForm
+    from ..components.forms.verify_code import VerifyCodeForm
+    from ..views.authentication import AuthenticationView
 
 
 @final
 class AuthenticationController:
-    def __init__(self, view: QWidget) -> None:
+    def __init__(self, view: "AuthenticationView") -> None:
         self.view = view
 
     def setup_connections(self):
@@ -27,7 +34,7 @@ class AuthenticationController:
             self.view.verify_form.signin_signup_prompt
         )
 
-    def register_view_change_connections(self, *widgets: QWidget):
+    def register_view_change_connections(self, *widgets: "PrimaryLabel"):
         for widget in widgets:
             widget.linkActivated.connect(self.handle_view_link_clicked)
 
@@ -42,65 +49,65 @@ class AuthenticationController:
             case _:
                 raise RuntimeError(f"Invalid authentication link: {link!r}")
 
-    def handle_signin(self):
-        login_data = self.view.login_form.get_data()
+    def handle_signin(self, form: "LoginForm") -> None:
+        login_data = form.get_data()
         
-        if self.view.login_form.is_empty_fields():
+        if form.is_empty_fields():
             return
 
         try:
             user = User(**login_data)
         except InvalidCredentialsError:
-            self.view.login_form.email_input.set_state("error")
-            self.view.login_form.password_input.set_state("error")
+            form.email_input.set_state("error")
+            form.password_input.set_state("error")
             return
         
         # TODO: go-to customer/SP dashboard
 
-    def handle_signup(self):
-        signup_data = self.view.signup_form.get_data()
+    def handle_signup(self, form: "SignupForm"):
+        signup_data = form.get_data()
 
-        if self.view.signup_form.is_empty_fields():
+        if form.is_empty_fields():
             return
 
         if signup_data['password'] != signup_data['confirm']:
-            self.view.signup_form.password_input.set_state("error")
-            self.view.signup_form.confirm_password_input.set_state("error")
+            form.password_input.set_state("error")
+            form.confirm_password_input.set_state("error")
             return
         
         if not is_valid_email(signup_data['email']):
-            self.view.signup_form.email_input.set_state("error")
+            form.email_input.set_state("error")
             return
 
         if exists_email(signup_data['email']):
-            self.view.signup_form.email_input.set_state("error")
+            form.email_input.set_state("error")
             return
     
         role_selection_view = RoleSelectionView(signup_data)
         role_selection_view.show()
         self.view.close()
 
-    def handle_forgot_password(self) -> None:
-        email = self.view.forgot_form.get_data()['email']
+    def handle_forgot_password(self, form: "ForgotPasswordForm") -> None:
+        email = form.get_data()['email']
 
-        if self.view.forgot_form.is_empty_fields():
+        if form.is_empty_fields():
             return
 
         if not exists_email(email):
-            self.view.forgot_form.email_input.set_state("error")
+            form.email_input.set_state("error")
             return
         
         self.show_verify_code_panel()
 
-    def handle_code_verify(self) -> None:
-        verify_data = self.view.verify_form.get_data()
+    def handle_code_verify(self, form: "VerifyCodeForm") -> None:
+        verify_data = form.get_data()
 
-        if self.view.verify_form.is_empty_fields():
+        if form.is_empty_fields():
             return
 
         if verify_data['password'] != verify_data['confirm']:
-            self.view.verify_form.password_input.set_state("error")
-            self.view.verify_form.confirm_password_input.set_state("error")
+            form.password_input.set_state("error")
+            form.confirm_password_input.set_state("error")
             return
 
         print("Pretending to verify code:", verify_data['code'])
