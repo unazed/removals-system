@@ -6,12 +6,14 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
+from ...models.user import is_valid_email, exists_email
 
 from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
 
 from .form import Form
+from .util_validation import validate_name, validate_password
 
 
 @final
@@ -46,6 +48,9 @@ class SignupForm(QWidget, Form):
         layout.addSpacing(40)
 
         self.email_input = LineEdit("Email", name="email")
+        self.email_input.register_validation_func(
+            lambda email: is_valid_email(email) and not exists_email(email)
+        )
         layout.addWidget(self.email_input)
 
         name_inputs = QWidget()
@@ -54,7 +59,9 @@ class SignupForm(QWidget, Form):
         name_layout.setSpacing(12)
 
         self.forename_input = LineEdit("Forename", name="forename")
+        self.forename_input.register_validation_func(validate_name)
         self.surname_input = LineEdit("Surname", name="surname")
+        self.surname_input.register_validation_func(validate_name)
 
         self.forename_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred
@@ -74,6 +81,11 @@ class SignupForm(QWidget, Form):
         self.confirm_password_input = LineEdit(
             "Confirm password", name="confirm"
         )
+        self.confirm_password_input.register_validation_func(
+            lambda confirm: validate_password(
+                self.password_input.text, confirm
+            )
+        )
         self.confirm_password_input.setEchoMode(QLineEdit.Password)
         layout.addWidget(self.confirm_password_input)
         layout.addSpacing(40)
@@ -90,10 +102,10 @@ class SignupForm(QWidget, Form):
         """)
         layout.addWidget(self.sign_in_prompt)
 
-        self.fields = (
+        self.fields = [
             self.email_input,
             self.forename_input,
             self.surname_input,
             self.password_input,
             self.confirm_password_input
-        )
+        ]

@@ -47,7 +47,8 @@ class RoleSelectionView(QWidget):
             "I need help moving items to a new location, possibly including " +
             "packing, dismantling, or storage.",
             ASSET_MAP['customer-card'],
-            (197, 170)
+            (197, 170),
+            parent=body_widget
         )
 
         self.cards['service-provider'] = ClickableCard(
@@ -55,7 +56,8 @@ class RoleSelectionView(QWidget):
             "I want to offer professional moving services and connect with " +
             "people who need help relocating.",
             ASSET_MAP['service-provider-card'],
-            (170, 170)
+            (170, 170),
+            parent=body_widget
         )
 
         for card_widget in self.cards.values():
@@ -82,10 +84,10 @@ class RoleSelectionView(QWidget):
         address_layout.addWidget(address_line_1)
         address_line_2 = LineEdit("Line 2", name="address-2")
         address_layout.addWidget(address_line_2)
-        address_line_3 = LineEdit("Line 3", name="address-3")
-        address_layout.addWidget(address_line_3)
+        post_code = LineEdit("Post code", name="post-code")
+        address_layout.addWidget(post_code)
         body_widget.fields.extend(
-            (address_line_1, address_line_2, address_line_3)
+            (address_line_1, address_line_2, post_code)
         )
         body_layout.addWidget(address_widget)
 

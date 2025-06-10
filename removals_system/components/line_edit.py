@@ -2,17 +2,21 @@ from PySide6.QtWidgets import QLineEdit, QLabel, QWidget
 from PySide6.QtCore import QEvent
 from PySide6.QtGui import QAction, QIcon
 
-from typing import final
+from typing import final, Callable, TypeAlias
+
+
+ValidationFuncT: TypeAlias = Callable[[str], bool]
 
 
 @final
 class LineEdit(QWidget):
-    PRIMARY_COLOR = "#ccc"
+    PRIMARY_COLOR = "#cccccc"
     FOCUS_COLOR = "#89a69f"
 
     def __init__(
         self,
         label_text: str = "",
+        *,
         icon_path: str = "",
         name: str = "",
         parent = None
@@ -30,6 +34,7 @@ class LineEdit(QWidget):
         self.label.move(4, 0)
 
         self.input = QLineEdit(self)
+        self.validation_fn: ValidationFuncT | None = None
 
         if icon_path:
             self.input.setClearButtonEnabled(True)
@@ -55,6 +60,22 @@ class LineEdit(QWidget):
         """)
         self.input.setGeometry(0, 12, self.width(), 36)
         self.input.installEventFilter(self)
+
+    def register_validation_func(self, fn: ValidationFuncT) -> None:
+        self.validation_fn = fn
+        self.input.editingFinished.connect(self.do_validate)
+
+    def do_validate(self) -> None:
+        if self.validation_fn is None:
+            raise RuntimeError("Validation function should not be NoneType")
+        self.set_state()
+        if not self.validation_fn(self.input.text()):
+            self.set_state("error")
+    
+    def is_valid(self) -> bool:
+        if self.validation_fn is None:
+            return True
+        return self.validation_fn(self.input.text())
 
     def set_state(self, state: str = "") -> None:
         self.input.setProperty("status", state)

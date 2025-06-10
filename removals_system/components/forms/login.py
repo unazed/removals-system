@@ -5,6 +5,7 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
+from ...models.user import is_valid_email, exists_email
 
 from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
@@ -47,6 +48,9 @@ class LoginForm(QWidget, Form):
         layout.addSpacing(40)
 
         self.email_input = LineEdit("Email", name="email")
+        self.email_input.register_validation_func(
+            lambda email: is_valid_email(email) and exists_email(email)
+        )
         layout.addWidget(self.email_input)
 
         self.password_input = LineEdit("Password", name="password")
@@ -76,7 +80,7 @@ class LoginForm(QWidget, Form):
         """)
         layout.addWidget(self.sign_up_prompt)
 
-        self.fields = (
+        self.fields = [
             self.email_input,
             self.password_input
-        )
+        ]

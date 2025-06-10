@@ -22,6 +22,25 @@ class Form:
                 field.set_state("error")
                 is_empty = True
         return is_empty
+    
+    def is_valid_fields(self) -> bool:
+        self.reset_state()
+
+        if self.is_empty_fields():
+            return True
+
+        any_invalid = False
+
+        for field in self.fields:
+            if not field.is_valid():
+                field.set_state("error")
+                any_invalid = True
+
+        return not any_invalid
+
+    def set_all_invalid(self) -> None:
+        for field in self.fields:
+            field.set_state("error")
 
     def reset_state(self) -> None:
         for field in self.fields:

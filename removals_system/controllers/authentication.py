@@ -1,5 +1,3 @@
-from PySide6.QtWidgets import QWidget
-
 from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User, exists_email, is_valid_email
 
@@ -19,6 +17,7 @@ if TYPE_CHECKING:
 class AuthenticationController:
     def __init__(self, view: "AuthenticationView") -> None:
         self.view = view
+        self._role_selection_view: RoleSelectionView | None = None
 
     def setup_connections(self):
         self.view.login_form.on_submit(self.handle_signin)
@@ -52,14 +51,14 @@ class AuthenticationController:
     def handle_signin(self, form: "LoginForm") -> None:
         login_data = form.get_data()
         
-        if form.is_empty_fields():
+        if form.is_empty_fields() or not form.is_valid_fields():
+            print(f"{form.is_empty_fields()=}, {form.is_valid_fields()=}")
             return
 
         try:
             user = User(**login_data)
         except InvalidCredentialsError:
-            form.email_input.set_state("error")
-            form.password_input.set_state("error")
+            form.set_all_invalid()
             return
         
         # TODO: go-to customer/SP dashboard
@@ -67,24 +66,11 @@ class AuthenticationController:
     def handle_signup(self, form: "SignupForm"):
         signup_data = form.get_data()
 
-        if form.is_empty_fields():
-            return
-
-        if signup_data['password'] != signup_data['confirm']:
-            form.password_input.set_state("error")
-            form.confirm_password_input.set_state("error")
-            return
-        
-        if not is_valid_email(signup_data['email']):
-            form.email_input.set_state("error")
-            return
-
-        if exists_email(signup_data['email']):
-            form.email_input.set_state("error")
+        if form.is_empty_fields() or not form.is_valid_fields():
             return
     
-        role_selection_view = RoleSelectionView(signup_data)
-        role_selection_view.show()
+        self._role_selection_view = RoleSelectionView(signup_data)
+        self._role_selection_view.show()
         self.view.close()
 
     def handle_forgot_password(self, form: "ForgotPasswordForm") -> None:

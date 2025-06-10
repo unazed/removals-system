@@ -27,6 +27,8 @@ class RoleSelectionController:
         self.view.stack.setCurrentIndex(1)
     
     def customer_submit_details(self, form: "FormWidget") -> None:
+        if form.is_empty_fields():
+            return
         print(form.get_data())
     
     def service_provider_card_selected(self) -> None:

@@ -11,11 +11,12 @@ class ClickableCard(QFrame):
         title: str,
         description: str,
         icon_path: str,
-        dim: tuple[int, int]
+        dim: tuple[int, int],
+        *,
+        parent: QWidget = None
     ) -> None:
-        super().__init__()
+        super().__init__(parent=parent)
         self.setObjectName("clickable-card")
-
         layout = QVBoxLayout(self)
         
         icon_label = QLabel()
@@ -58,8 +59,6 @@ class ClickableCard(QFrame):
 
     def enterEvent(self, event):
         self.setCursor(Qt.PointingHandCursor)
-        super().enterEvent(event)
     
     def leaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
-        super().leaveEvent(event)

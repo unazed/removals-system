@@ -10,6 +10,7 @@ from typing import final
 @final
 class User:
     def __init__(self, email: str, password: str) -> None:
+        print(f"Trying to login with {email=}, {password=}")
         query = db.proc_login_user(email, password)
         if query is None:
             raise InvalidCredentialsError
