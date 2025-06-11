@@ -10,14 +10,10 @@ from ...models.user import is_valid_email, exists_email
 from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
-
-from .form import Form
-
-from typing import final
+from ..form import Form
 
 
-@final
-class LoginForm(QWidget, Form):
+class LoginForm(Form):
     def __init__(self):
         super().__init__()
 

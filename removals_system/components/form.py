@@ -1,41 +1,24 @@
-from ...components.line_edit import LineEdit
-from ...components.primary_button import PrimaryButton
+from PySide6.QtWidgets import QWidget, QPushButton
 
-from typing import MutableSequence, TYPE_CHECKING
-if TYPE_CHECKING:
-    from PySide6.QtWidgets import QWidget
+from .validation_mixin import ValidationMixin
+
+from typing import MutableSequence
 
 
-class Form:
-    def __init__(self):
-        self.fields: MutableSequence[LineEdit] = []
-        self.primary_button: PrimaryButton | None = None
+class Form(QWidget):
+    def __init__(self, parent = None):
+        super().__init__(parent)
+        self.fields: MutableSequence[ValidationMixin] = []
+        self.primary_button: QPushButton | None = None
 
     def on_submit(self, callback) -> None:
         if self.primary_button is not None:
             self.primary_button.clicked.connect(lambda: callback(self))
-
-    def is_empty_fields(self) -> bool:
-        self.reset_state()
-        
-        is_empty = False
-        for field in self.fields:
-            if not hasattr(field, "text"):
-                print(f"Skipping field with no .text() attribute: {field!r}")
-                continue
-            if not field.text().strip():
-                field.state.emit("error")
-                is_empty = True
-        return is_empty
     
     def is_valid_fields(self) -> bool:
         self.reset_state()
 
-        if self.is_empty_fields():
-            return True
-
         any_invalid = False
-
         for field in self.fields:
             if not field.is_valid():
                 field.state.emit("error")

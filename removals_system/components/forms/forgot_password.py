@@ -9,14 +9,10 @@ from ...config.constants import ASSET_MAP
 from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
-
-from .form import Form
-
-from typing import final
+from ..form import Form
 
 
-@final
-class ForgotPasswordForm(QWidget, Form):
+class ForgotPasswordForm(Form):
     def __init__(self):
         super().__init__()
 

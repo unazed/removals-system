@@ -1,4 +1,3 @@
-from typing import final
 from PySide6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QSizePolicy, QHBoxLayout, QVBoxLayout,
 )
@@ -11,13 +10,12 @@ from ...models.user import is_valid_email, exists_email
 from ..line_edit import LineEdit
 from ..primary_button import PrimaryButton
 from ..primary_label import PrimaryLabel
+from ..form import Form
 
-from .form import Form
 from .util_validation import validate_name, validate_password
 
 
-@final
-class SignupForm(QWidget, Form):
+class SignupForm(Form):
     def __init__(self):
         super().__init__()
 

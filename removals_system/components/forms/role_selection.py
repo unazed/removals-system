@@ -1,24 +1,23 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QFrame, QLabel
+    QWidget, QVBoxLayout, QFrame, QLabel, QHBoxLayout
 )
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..form_widget import FormWidget
+from ..form import Form
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from PySide6.QtGui import QResizeEvent
 
 
-@final
 class RoleSelectionForm(QWidget):
     def __init__(
         self,
         title: str,
-        body: FormWidget,
+        body: Form,
         footer: QWidget | None = None
     ) -> None:
         super().__init__()
@@ -33,18 +32,22 @@ class RoleSelectionForm(QWidget):
         layout.setContentsMargins(100, 40, 100, 40)
         layout.addStretch()
 
+        title_horizontal_container = QWidget()
+        title_horizontal_layout = QHBoxLayout(title_horizontal_container)
+        title_horizontal_layout.setContentsMargins(0, 0, 0, 0)
+        
+        title_horizontal_layout.addStretch(2)
+        
         self.title_container = QWidget()
-        self.title_container.setFixedWidth(int(self.width() * 0.6))
         title_layout = QVBoxLayout(self.title_container)
 
-        title_label = QLabel(title)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setFont(QFont("Albert Sans", 20))
-        title_label.setTextFormat(Qt.RichText)
-        # title_label.setScaledContents(True)
-        title_label.setWordWrap(True)
+        self.title_label = QLabel(title)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setFont(QFont("Albert Sans", 20))
+        self.title_label.setTextFormat(Qt.RichText)
+        self.title_label.setWordWrap(True)
 
-        title_layout.addWidget(title_label)
+        title_layout.addWidget(self.title_label)
         title_layout.addSpacing(10)
 
         divider = QFrame()
@@ -55,7 +58,10 @@ class RoleSelectionForm(QWidget):
 
         title_layout.addWidget(divider, alignment=Qt.AlignCenter)
 
-        layout.addWidget(self.title_container, alignment=Qt.AlignCenter)
+        title_horizontal_layout.addWidget(self.title_container, 7)
+        title_horizontal_layout.addStretch(2)
+
+        layout.addWidget(title_horizontal_container)
         layout.addSpacing(40)
 
         self.body = body
@@ -78,8 +84,3 @@ class RoleSelectionForm(QWidget):
         )
         logo_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(logo_label)
-
-    def resizeEvent(self, event: "QResizeEvent"):
-        super().resizeEvent(event)
-        new_width = int(event.size().width() * 0.6)
-        self.title_container.setFixedWidth(new_width)

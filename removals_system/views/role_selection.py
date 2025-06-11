@@ -5,13 +5,15 @@ from PySide6.QtCore import Qt
 
 from ..components.forms.role_selection import RoleSelectionForm
 from ..components.clickable_card import ClickableCard
-from ..components.form_widget import FormWidget
 from ..components.primary_button import PrimaryButton
 from ..components.primary_label import PrimaryLabel
 from ..components.line_edit import LineEdit
 from ..components.combo_box import ComboBox
 from ..components.date_picker import DatePicker
+from ..components.form import Form
+
 from ..controllers.role_selection import RoleSelectionController
+
 from ..config.constants import ASSET_MAP
 
 
@@ -39,7 +41,7 @@ class RoleSelectionView(QWidget):
         main_layout.addWidget(container, stretch=1)
 
     def create_role_selection_form(self, forename: str) -> RoleSelectionForm:
-        body_widget = FormWidget()
+        body_widget = Form()
         body_layout = QHBoxLayout(body_widget)
         body_layout.setSpacing(30)
 
@@ -75,7 +77,7 @@ class RoleSelectionView(QWidget):
         )
     
     def create_customer_details_form(self) -> RoleSelectionForm:
-        body_widget = FormWidget()
+        body_widget = Form()
         body_layout = QVBoxLayout(body_widget)
         
         country_widget = QWidget()
@@ -111,6 +113,7 @@ class RoleSelectionView(QWidget):
         address_layout.setSpacing(15)
         address_line_1 = LineEdit("Address Line 1", name="address-1")
         address_line_2 = LineEdit("Line 2", name="address-2")
+        address_line_2.set_optional(True)
         post_code = LineEdit("Post code", name="post-code")
         address_layout.addWidget(post_code)
         address_layout.addWidget(address_line_1)

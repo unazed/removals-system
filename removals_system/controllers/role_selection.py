@@ -56,7 +56,6 @@ class RoleSelectionController:
         form: "RoleSelectionForm",
         country: str
     ) -> None:
-        print(f"Country: {country}!")
         county_combo: ComboBox = form.body.get_widget("county")
         county_combo.clear()
         county_combo.addItems(get_counties(country))
@@ -66,14 +65,13 @@ class RoleSelectionController:
         form: "RoleSelectionForm",
         county: str
     ) -> None:
-        print(f"County: {county}")
         country_combo: ComboBox = form.body.get_widget("country")
         cities_combo: ComboBox = form.body.get_widget("city")
         cities_combo.clear()
         cities_combo.addItems(get_cities(country_combo.serialize(), county))
     
     def customer_submit_details(self, form: "FormWidget") -> None:
-        if form.is_empty_fields():
+        if not form.is_valid_fields():
             return
         print(form.get_data())
     

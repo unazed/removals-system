@@ -51,8 +51,7 @@ class AuthenticationController:
     def handle_signin(self, form: "LoginForm") -> None:
         login_data = form.get_data()
         
-        if form.is_empty_fields() or not form.is_valid_fields():
-            print(f"{form.is_empty_fields()=}, {form.is_valid_fields()=}")
+        if not form.is_valid_fields():
             return
 
         try:
@@ -66,7 +65,7 @@ class AuthenticationController:
     def handle_signup(self, form: "SignupForm"):
         signup_data = form.get_data()
 
-        if form.is_empty_fields() or not form.is_valid_fields():
+        if not form.is_valid_fields():
             return
     
         self._role_selection_view = RoleSelectionView(signup_data)
@@ -76,7 +75,7 @@ class AuthenticationController:
     def handle_forgot_password(self, form: "ForgotPasswordForm") -> None:
         email = form.get_data()['email']
 
-        if form.is_empty_fields():
+        if not form.is_valid_fields():
             return
 
         if not exists_email(email):
@@ -88,7 +87,7 @@ class AuthenticationController:
     def handle_code_verify(self, form: "VerifyCodeForm") -> None:
         verify_data = form.get_data()
 
-        if form.is_empty_fields():
+        if not form.is_valid_fields():
             return
 
         if verify_data['password'] != verify_data['confirm']:
