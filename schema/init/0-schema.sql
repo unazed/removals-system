@@ -23,6 +23,7 @@ BEGIN;
   \i 'init/proc/login.sql'
   \i 'init/proc/register.sql'
   \i 'init/proc/email.sql'
+  \i 'init/proc/addresses.sql'
 COMMIT;
 
 BEGIN;
@@ -35,4 +36,5 @@ COMMIT;
 BEGIN;
   \i 'init/4-permissions.sql'
   \i 'init/5-triggers.sql'
+  \i 'init/6-indexes.sql'
 COMMIT;

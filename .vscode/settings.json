@@ -1,4 +1,4 @@
 {
-    "makefile.makePath": "C:\\Program Files (x86)\\GnuWin32\\bin\\make.exe",
-    "makefile.makefilePath": "C:\\Users\\administrator.CYLAB\\Desktop\\removals-system\\Makefile.win"
+    "makefile.makePath": "/usr/bin/make",
+    "makefile.makefilePath": "/home/unazed/Programming/python/removals-system/Makefile"
 }

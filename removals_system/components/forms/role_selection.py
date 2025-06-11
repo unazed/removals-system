@@ -41,7 +41,7 @@ class RoleSelectionForm(QWidget):
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setFont(QFont("Albert Sans", 20))
         title_label.setTextFormat(Qt.RichText)
-        title_label.setScaledContents(True)
+        # title_label.setScaledContents(True)
         title_label.setWordWrap(True)
 
         title_layout.addWidget(title_label)

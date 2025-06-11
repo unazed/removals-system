@@ -1,10 +1,10 @@
 VENV 	= .venv
 SQLDIR  = db
-PYTHON 	= $(VENV)/Scripts/python
-PIP 	= $(VENV)/Scripts/pip
+PYTHON 	= $(VENV)/bin/python
+PIP 	= $(VENV)/bin/pip
 DB		= psql
 DBNAME  = removals
-SYSPYTHON = py
+SYSPYTHON = python
 
 run: $(VENV)/bin/activate
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) main.py

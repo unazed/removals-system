@@ -1,7 +1,9 @@
 from ...components.line_edit import LineEdit
 from ...components.primary_button import PrimaryButton
 
-from typing import MutableSequence
+from typing import MutableSequence, TYPE_CHECKING
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class Form:
@@ -18,8 +20,11 @@ class Form:
         
         is_empty = False
         for field in self.fields:
+            if not hasattr(field, "text"):
+                print(f"Skipping field with no .text() attribute: {field!r}")
+                continue
             if not field.text().strip():
-                field.set_state("error")
+                field.state.emit("error")
                 is_empty = True
         return is_empty
     
@@ -33,20 +38,26 @@ class Form:
 
         for field in self.fields:
             if not field.is_valid():
-                field.set_state("error")
+                field.state.emit("error")
                 any_invalid = True
 
         return not any_invalid
 
     def set_all_invalid(self) -> None:
         for field in self.fields:
-            field.set_state("error")
+            field.state.emit("error")
 
     def reset_state(self) -> None:
         for field in self.fields:
-            field.set_state()
+            field.state.emit("")
 
-    def get_data(self) -> dict[str, str]:
+    def get_widget(self, name: str) -> "QWidget | None":
+        # NOTE: :)
+        if any((which := field).name == name for field in self.fields):
+            return which
+        
+    def get_data(self) -> dict[str, object]:
         return {
-            field.name: field.text() for field in self.fields
+            field.name: field.serialize()
+            for field in self.fields
         }

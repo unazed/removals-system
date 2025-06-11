@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy
 )
-
 from PySide6.QtCore import Qt
 
 from ..components.forms.role_selection import RoleSelectionForm
@@ -10,6 +9,8 @@ from ..components.form_widget import FormWidget
 from ..components.primary_button import PrimaryButton
 from ..components.primary_label import PrimaryLabel
 from ..components.line_edit import LineEdit
+from ..components.combo_box import ComboBox
+from ..components.date_picker import DatePicker
 from ..controllers.role_selection import RoleSelectionController
 from ..config.constants import ASSET_MAP
 
@@ -77,47 +78,47 @@ class RoleSelectionView(QWidget):
         body_widget = FormWidget()
         body_layout = QVBoxLayout(body_widget)
         
+        country_widget = QWidget()
+        country_layout = QHBoxLayout(country_widget)
+        country_layout.setSpacing(15)
+        country_field = ComboBox("Country", name="country")
+        country_layout.addWidget(country_field)
+        body_widget.fields.append(country_field)
+        body_layout.addWidget(country_widget)
+
+        county_city_widget = QWidget()
+        county_city_layout = QHBoxLayout(county_city_widget)
+        county_city_layout.setSpacing(15)
+        city_field = ComboBox("City", name="city")
+        county_field = ComboBox("County", name="county")
+        county_city_layout.addWidget(county_field)
+        county_city_layout.addWidget(city_field)
+        body_widget.fields.extend((city_field, county_field))
+        body_layout.addWidget(county_city_widget)
+
+        telephone_dob_widget = QWidget()
+        telephone_dob_layout = QHBoxLayout(telephone_dob_widget)
+        telephone_dob_layout.setSpacing(15)
+        telephone_field = LineEdit("Telephone", name="telephone")
+        dob_field = DatePicker("Date of birth", name="dob")
+        telephone_dob_layout.addWidget(telephone_field, stretch=1)
+        telephone_dob_layout.addWidget(dob_field, stretch=1)
+        body_widget.fields.extend((telephone_field, dob_field))
+        body_layout.addWidget(telephone_dob_widget)
+
         address_widget = QWidget()
         address_layout = QHBoxLayout(address_widget)
         address_layout.setSpacing(15)
         address_line_1 = LineEdit("Address Line 1", name="address-1")
-        address_layout.addWidget(address_line_1)
         address_line_2 = LineEdit("Line 2", name="address-2")
-        address_layout.addWidget(address_line_2)
         post_code = LineEdit("Post code", name="post-code")
         address_layout.addWidget(post_code)
+        address_layout.addWidget(address_line_1)
+        address_layout.addWidget(address_line_2)
         body_widget.fields.extend(
             (address_line_1, address_line_2, post_code)
         )
         body_layout.addWidget(address_widget)
-
-        city_telephone_widget = QWidget()
-        city_telephone_layout = QHBoxLayout(city_telephone_widget)
-        city_telephone_layout.setSpacing(15)
-        city_field = LineEdit("City", name="city")
-        city_telephone_layout.addWidget(city_field)
-        telephone_field = LineEdit("Telephone", name="telephone")
-        city_telephone_layout.addWidget(telephone_field)
-        body_widget.fields.extend((city_field, telephone_field))
-        body_layout.addWidget(city_telephone_widget)
-
-        county_dob_widget = QWidget()
-        county_dob_layout = QHBoxLayout(county_dob_widget)
-        county_dob_layout.setSpacing(15)
-        county_field = LineEdit("County", name="county")
-        county_dob_layout.addWidget(county_field)
-        dob_field = LineEdit("Date of birth", name="dob")
-        county_dob_layout.addWidget(dob_field)
-        body_widget.fields.extend((county_field, dob_field))
-        body_layout.addWidget(county_dob_widget)
-
-        country_widget = QWidget()
-        country_layout = QHBoxLayout(country_widget)
-        country_layout.setSpacing(15)
-        country_field = LineEdit("Country", name="country")
-        country_layout.addWidget(country_field)
-        body_widget.fields.append(country_field)
-        body_layout.addWidget(country_widget)
 
         footer_widget = QWidget()
         footer_layout = QVBoxLayout(footer_widget)

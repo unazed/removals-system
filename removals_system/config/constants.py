@@ -2,11 +2,15 @@ import os
 
 
 ASSET_MAP: dict[str, str] = {
-    "hero-truck": ("assets", "hero-truck.png"),
-    "logo-black": ("assets", "logo-black-transparent.png"),
-    "customer-card": ("assets", "customer-placeholder.png"),
-    "service-provider-card": ("assets", "service-provider-placeholder.png")
+    "hero-truck": "hero-truck.png",
+    "logo-black": "logo-black-transparent.png",
+    "customer-card": "customer-placeholder.png",
+    "service-provider-card": "service-provider-placeholder.png",
+    "chevron-down": ("icons", "chevron-down.svg"),
+    "calendar": ("icons", "calendar.svg")
 }
 
 for asset_name, asset_path in ASSET_MAP.items():
-    ASSET_MAP[asset_name] = os.path.join("removals_system", *asset_path)
+    if isinstance(asset_path, tuple):
+        asset_path = os.path.join(*asset_path)
+    ASSET_MAP[asset_name] = os.path.join("removals_system", "assets", asset_path)
