@@ -1,4 +1,7 @@
+from PySide6.QtCore import Qt
+
 from ..models.addresses import get_countries, get_counties, get_cities
+from ..models.telephone import is_valid_number, extract_phone_components
 from ..components.forms.util_validation import validate_age_over_18
 
 from typing import TYPE_CHECKING, Literal, cast
@@ -9,6 +12,7 @@ if TYPE_CHECKING:
     from ..components.form_widget import FormWidget
     from ..components.combo_box import ComboBox
     from ..components.date_picker import DatePicker
+    from ..components.line_edit import LineEdit
 
 
 class RoleSelectionController:
@@ -40,7 +44,13 @@ class RoleSelectionController:
         details_form: "RoleSelectionForm"
     ) -> None:
         country_combo: "ComboBox" = details_form.body.get_widget("country")
-        country_combo.addItems(name for _, name in get_countries())
+        for country_code, country_name in get_countries():
+            country_combo.addItem(country_name)
+            country_combo.setItemData(
+                country_combo.count() - 1,
+                country_code,
+                Qt.UserRole
+            )
         country_combo.currentTextChanged.connect(
             lambda to: self.on_country_change(details_form, to)
         )
@@ -50,6 +60,8 @@ class RoleSelectionController:
         )
         dob_date: "DatePicker" = details_form.body.get_widget("dob")
         dob_date.register_validation_func(validate_age_over_18)
+        telephone_field: "LineEdit" = details_form.body.get_widget("telephone")
+        telephone_field.register_validation_func(is_valid_number)
 
     def on_country_change(
         self,
@@ -73,7 +85,9 @@ class RoleSelectionController:
     def customer_submit_details(self, form: "FormWidget") -> None:
         if not form.is_valid_fields():
             return
-        print(form.get_data())
+        data = form.get_data()
+        print(data)
+        print(f"number extracted: {extract_phone_components(data['telephone'])}")
     
     def service_provider_card_selected(self) -> None:
         self.current_view = "service-provider"

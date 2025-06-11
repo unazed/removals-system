@@ -48,7 +48,6 @@ def proc_register_user(
 def proc_is_valid_email(email: str) -> bool:
     return call_proc("is_valid_email", params=(email,))[0]
 
-
 def proc_exists_email(email: str) -> bool:
     return call_proc("exists_email", params=(email,))[0]
     
