@@ -2,7 +2,7 @@ from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User, exists_email
 
 from ..views.role_selection import RoleSelectionView
-from ..views.dashboard import Dashboard
+from ..views.dashboard import DashboardView
 
 from typing import final, TYPE_CHECKING
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class AuthenticationController:
             form.set_all_invalid()
             return
         
-        self.dashboard = Dashboard(user)
+        self.dashboard = DashboardView(user)
         self.view.close()
         self.dashboard.show()
 

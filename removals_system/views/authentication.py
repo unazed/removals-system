@@ -13,10 +13,7 @@ from ..controllers.authentication import AuthenticationController
 
 from ..config.constants import ASSET_MAP
 
-from typing import final
 
-
-@final
 class AuthenticationView(QWidget):
     def __init__(self):
         super().__init__()

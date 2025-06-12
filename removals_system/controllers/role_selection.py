@@ -4,7 +4,7 @@ from ..models.user import register_user
 from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number
 from ..models.db import proc_get_length_constraint
-from ..views.dashboard import Dashboard
+from ..views.dashboard import DashboardView
 from ..components.forms.util_validation import validate_age_over_18
 
 from typing import TYPE_CHECKING, Literal
