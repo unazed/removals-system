@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 
 
@@ -13,4 +14,8 @@ ASSET_MAP: dict[str, str] = {
 for asset_name, asset_path in ASSET_MAP.items():
     if isinstance(asset_path, tuple):
         asset_path = os.path.join(*asset_path)
-    ASSET_MAP[asset_name] = os.path.join("removals_system", "assets", asset_path)
+    ASSET_MAP[asset_name] = Path(
+        os.path.join("removals_system", "assets", asset_path)
+    ).as_posix()
+
+print(ASSET_MAP)

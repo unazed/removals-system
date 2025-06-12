@@ -1,18 +1,21 @@
 from PySide6.QtCore import Qt
 
+from ..models.user import register_user
 from ..models.addresses import get_countries, get_counties, get_cities
-from ..models.telephone import is_valid_number, extract_phone_components
+from ..models.telephone import is_valid_number
+from ..models.db import proc_get_length_constraint
+from ..views.dashboard import Dashboard
 from ..components.forms.util_validation import validate_age_over_18
 
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from ..views.role_selection import RoleSelectionView
     from ..components.forms.role_selection import RoleSelectionForm
-    from ..components.form_widget import FormWidget
     from ..components.combo_box import ComboBox
     from ..components.date_picker import DatePicker
     from ..components.line_edit import LineEdit
+    from ..components.form import Form
 
 
 class RoleSelectionController:
@@ -62,6 +65,10 @@ class RoleSelectionController:
         dob_date.register_validation_func(validate_age_over_18)
         telephone_field: "LineEdit" = details_form.body.get_widget("telephone")
         telephone_field.register_validation_func(is_valid_number)
+        post_code: "LineEdit" = details_form.body.get_widget("post-code")
+        post_code.setMaxLength(
+            proc_get_length_constraint("addresses", "post_code")
+        )
 
     def on_country_change(
         self,
@@ -82,12 +89,21 @@ class RoleSelectionController:
         cities_combo.clear()
         cities_combo.addItems(get_cities(country_combo.serialize(), county))
     
-    def customer_submit_details(self, form: "FormWidget") -> None:
+    def customer_submit_details(self, form: "Form") -> None:
         if not form.is_valid_fields():
             return
-        data = form.get_data()
-        print(data)
-        print(f"number extracted: {extract_phone_components(data['telephone'])}")
+        extra_user_info = form.get_data()
+        user = register_user(**{
+            "forename": self.user_details['forename'],
+            "surname": self.user_details['surname'],
+            "email": self.user_details['email'],
+            "password": self.user_details['password'],
+            "dob": extra_user_info['dob'].toPython(),
+            "role": "customer"
+        })
+        self.dashboard = Dashboard(user)
+        self.view.close()
+        self.dashboard.show()
     
     def service_provider_card_selected(self) -> None:
         self.current_view = "service-provider"

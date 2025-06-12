@@ -29,7 +29,7 @@ class ComboBox(QComboBox, StyledWidget, ValidationMixin):
             }}
 
             QComboBox::down-arrow {{
-                image: url("{ASSET_MAP['chevron-down']}");
+                image: url('{ASSET_MAP['chevron-down']}');
             }}
 
             QLineEdit {{

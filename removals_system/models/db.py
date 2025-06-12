@@ -25,7 +25,8 @@ def call_proc(
             cur.callproc(proc_name, params)
             if fetch_all:
                 return cur.fetchall()
-            return cur.fetchone()
+            val = cur.fetchone()
+            return val
     finally:
         conn.close()
 
@@ -48,14 +49,18 @@ def proc_register_user(
 def proc_is_valid_email(email: str) -> bool:
     return call_proc("is_valid_email", params=(email,))[0]
 
+
 def proc_exists_email(email: str) -> bool:
     return call_proc("exists_email", params=(email,))[0]
     
+
 def proc_get_countries() -> list[DictRow]:
     return call_proc("get_countries", params=(), fetch_all=True)
 
+
 def proc_get_counties(country_name: str) -> list[DictRow]:
     return call_proc("get_counties", params=(country_name,), fetch_all=True)
+
 
 def proc_get_cities(country_name: str, county_name: str) -> list[DictRow]:
     return call_proc(
@@ -63,3 +68,10 @@ def proc_get_cities(country_name: str, county_name: str) -> list[DictRow]:
         params=(country_name, county_name),
         fetch_all=True
     )
+
+
+def proc_get_length_constraint(table: str, column: str) -> int:
+    return call_proc(
+        "get_length_constraint",
+        params=(table, column)
+    )[0]

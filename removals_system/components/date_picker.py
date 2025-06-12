@@ -32,7 +32,7 @@ class DatePicker(QDateEdit, StyledWidget, ValidationMixin):
             }}
 
             QDateEdit::down-arrow {{
-                image: url({ASSET_MAP['calendar']});
+                image: url('{ASSET_MAP['calendar']}');
                 width: 16px;
                 height: 16px;
             }}
