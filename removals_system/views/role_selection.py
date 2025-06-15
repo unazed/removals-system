@@ -76,7 +76,10 @@ class RoleSelectionView(QWidget):
             None
         )
     
-    def create_customer_details_form(self) -> RoleSelectionForm:
+    def create_service_provider_form(self) -> RoleSelectionForm:
+        raise NotImplementedError
+
+    def create_customer_form(self) -> RoleSelectionForm:
         body_widget = Form()
         body_layout = QVBoxLayout(body_widget)
         

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase, QFont
 
-from removals_system.views.authentication import AuthenticationView
+from removals_system.controllers.navigation import NavigationController
 
 import sys
 import os
@@ -23,7 +23,6 @@ def load_fonts_from_folder(folder_path: str) -> None:
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     load_fonts_from_folder(os.path.join("removals_system", "assets", "fonts"))
-    window = AuthenticationView()
-    window.resize(800, 600)
+    window = NavigationController(default_view="authentication")
     window.show()
     sys.exit(app.exec())

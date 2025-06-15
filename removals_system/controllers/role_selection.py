@@ -1,6 +1,6 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal, QObject
 
-from ..models.user import register_user
+from ..models.user import User, register_user
 from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number
 from ..models.db import proc_get_length_constraint
@@ -18,8 +18,11 @@ if TYPE_CHECKING:
     from ..components.form import Form
 
 
-class RoleSelectionController:
+class RoleSelectionController(QObject):
+    on_customer_submit = Signal(User)
+
     def __init__(self, view: "RoleSelectionView", user_details: dict) -> None:
+        super().__init__()
         self.view = view
         self.user_details = user_details
 
@@ -36,13 +39,21 @@ class RoleSelectionController:
     
     def customer_card_selected(self) -> None:
         self.current_view = "customer"
-        details_form = self.view.create_customer_details_form()
-        self.register_customer_details_connections(details_form)
+        details_form = self.view.create_customer_form()
+        self.register_customer_connections(details_form)
         details_form.body.on_submit(self.customer_submit_details)
         self.view.stack.addWidget(details_form)
         self.view.stack.setCurrentIndex(1)
 
-    def register_customer_details_connections(
+    def service_provider_card_selected(self) -> None:
+        self.current_view = "service-provider"
+        details_form = self.view.create_service_provider_form()
+        self.register_service_provider_connections(details_form)
+        details_form.body.on_submit(self.service_provider_submit_details)
+        self.view.stack.addWidget(details_form)
+        self.view.stack.setCurrentIndex(1)
+
+    def register_customer_connections(
         self,
         details_form: "RoleSelectionForm"
     ) -> None:
@@ -101,10 +112,9 @@ class RoleSelectionController:
             "dob": extra_user_info['dob'].toPython(),
             "role": "customer"
         })
-        self.dashboard = DashboardView(user)
-        self.view.close()
-        self.dashboard.show()
-    
-    def service_provider_card_selected(self) -> None:
-        self.current_view = "service-provider"
-        print("Pressed service provider")
+        self.on_customer_submit.emit(user)
+
+    def service_provider_submit_details(self, form: "Form") -> None:
+        if not form.is_valid_fields():
+            return
+        # TODO TODO TODO

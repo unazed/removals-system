@@ -1,10 +1,12 @@
+from PySide6.QtCore import QObject, Signal
+
 from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User, exists_email
 
 from ..views.role_selection import RoleSelectionView
 from ..views.dashboard import DashboardView
 
-from typing import final, TYPE_CHECKING
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..components.primary_label import PrimaryLabel
     from ..components.forms.login import LoginForm
@@ -14,9 +16,12 @@ if TYPE_CHECKING:
     from ..views.authentication import AuthenticationView
 
 
-@final
-class AuthenticationController:
+class AuthenticationController(QObject):
+    on_sign_up = Signal(dict)
+    on_sign_in = Signal(User)
+
     def __init__(self, view: "AuthenticationView") -> None:
+        super().__init__()
         self.view = view
         self._role_selection_view: RoleSelectionView | None = None
 
@@ -61,9 +66,7 @@ class AuthenticationController:
             form.set_all_invalid()
             return
         
-        self.dashboard = DashboardView(user)
-        self.view.close()
-        self.dashboard.show()
+        self.on_sign_in.emit(user)
 
     def handle_signup(self, form: "SignupForm"):
         signup_data = form.get_data()
@@ -71,9 +74,7 @@ class AuthenticationController:
         if not form.is_valid_fields():
             return
     
-        self._role_selection_view = RoleSelectionView(signup_data)
-        self._role_selection_view.show()
-        self.view.close()
+        self.on_sign_up.emit(signup_data)
 
     def handle_forgot_password(self, form: "ForgotPasswordForm") -> None:
         email = form.get_data()['email']

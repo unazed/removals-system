@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QFrame
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QObject, Signal
 
 from ..components.dashboard_navitem import DashboardNavItem
 from ..config.constants import ASSET_MAP
@@ -10,8 +9,11 @@ if typing.TYPE_CHECKING:
     from ..models.user import User
 
 
-class DashboardController:
+class DashboardController(QObject):
+    on_sign_out = Signal()
+
     def __init__(self, view: "DashboardView", user: "User") -> None:
+        super().__init__()
         self.view = view
         self.user = user
         self.current_tab: str | None = None
@@ -42,14 +44,14 @@ class DashboardController:
         self.nav_tabs[ref] = item
         layout.addWidget(item)
 
+    def tab_sign_out(self) -> None:
+        self.on_sign_out.emit()
+        
     def select_tab(self, nav_ref: str) -> None:
         if nav_ref == self.current_tab:
             return
         if nav_ref == "sign-out":
-            from ..views.authentication import AuthenticationView
-            auth_view = AuthenticationView()
-            self.view.close()
-            auth_view.show()
+            self.tab_sign_out()
             return
         self.select_nav_item(nav_ref)
         self.current_tab = nav_ref
