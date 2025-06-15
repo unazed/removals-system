@@ -6,6 +6,7 @@ from ..models.telephone import is_valid_number
 from ..models.db import proc_get_length_constraint
 from ..views.dashboard import DashboardView
 from ..components.forms.util_validation import validate_age_over_18
+from ..components.primary_label import PrimaryLabel
 
 from typing import TYPE_CHECKING, Literal
 
@@ -79,6 +80,12 @@ class RoleSelectionController(QObject):
         post_code: "LineEdit" = details_form.body.get_widget("post-code")
         post_code.setMaxLength(
             proc_get_length_constraint("addresses", "post_code")
+        )
+        back_label: PrimaryLabel = details_form.footer.findChild(PrimaryLabel)
+        back_label.linkActivated.connect(
+            lambda: self.view.stack.setCurrentIndex(
+                max(0, self.view.stack.currentIndex() - 1)
+            )
         )
 
     def on_country_change(

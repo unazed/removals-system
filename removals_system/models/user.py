@@ -21,10 +21,10 @@ class User:
             self.token, self.role = token_role_pair
             return
         print(f"Trying to login with {email=}, {password=}")
-        query = db.proc_login_user(email, password)
-        if query is None:
-            raise InvalidCredentialsError
-        self.token, self.role = query
+        error, *token_role_pair = db.proc_login_user(email, password)
+        if error:
+            raise InvalidCredentialsError(error)
+        self.token, self.role = token_role_pair
 
     @classmethod
     def from_token(cls: type["User"], token: str, role: str) -> "User":
@@ -40,5 +40,14 @@ def is_valid_email(email: str) -> bool:
 
 
 def register_user(**details) -> User:
-    token_role_pair = db.proc_register_user(**details)
+    error, *token_role_pair = db.proc_register_user(**details)
+    if error:
+        raise UserAlreadyExistsError(error)
+    return User.from_token(*token_role_pair)
+
+
+def forgot_password(code: str, email: str, password: str) -> "User":
+    error, *token_role_pair = db.proc_forgot_password(code, email, password)
+    if error:
+        raise InvalidCredentialsError(error)
     return User.from_token(*token_role_pair)

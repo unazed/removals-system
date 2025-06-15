@@ -1,4 +1,3 @@
-DROP FUNCTION IF EXISTS get_length_constraint;
 CREATE OR REPLACE FUNCTION get_length_constraint(p_table TEXT, p_column TEXT)
 RETURNS INTEGER AS $$
 BEGIN

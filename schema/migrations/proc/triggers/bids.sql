@@ -55,11 +55,11 @@ BEGIN
     RETURN NULL;
   ELSIF NEW.action_type = 'withdraw' THEN
     UPDATE BidActions 
-      SET bid_status = 'withdrawn'
-      WHERE order_id = NEW.order_id 
-      AND bidder_id = NEW.bidder_id 
-      AND bid_amount = NEW.bid_amount 
-      AND bid_status = 'active';
+    SET bid_status = 'withdrawn'
+    WHERE order_id = NEW.order_id 
+    AND bidder_id = NEW.bidder_id 
+    AND bid_amount = NEW.bid_amount 
+    AND bid_status = 'active';
         
     IF NOT FOUND THEN
       RAISE EXCEPTION 'No active bid found to withdraw for amount %', NEW.bid_amount;

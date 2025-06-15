@@ -31,7 +31,7 @@ def call_proc(
         conn.close()
 
 
-def proc_login_user(email: str, password: str) -> list[str] | None:
+def proc_login_user(email: str, password: str) -> list[DictRow]:
     return call_proc("login_user", (email, password))
 
 
@@ -75,3 +75,10 @@ def proc_get_length_constraint(table: str, column: str) -> int:
         "get_length_constraint",
         params=(table, column)
     )[0]
+
+
+def proc_forgot_password(code: str, email: str, password: str) -> list[DictRow]:
+    return call_proc(
+        "forgot_password",
+        params=(code, email, password)
+    )

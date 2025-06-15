@@ -1,5 +1,5 @@
 VENV 	= .venv
-SQLDIR  = db
+SQLDIR  = schema
 PYTHON 	= $(VENV)/bin/python
 PIP 	= $(VENV)/bin/pip
 DB		= psql
@@ -19,9 +19,9 @@ clean:
 	rm -rf $(VENV)
 
 clean-db:
-	$(DB) -f $(DB)/init/clear_schema.sql $(DBNAME) --username=postgres
+	$(DB) -f $(SQLDIR)/migrations/99-drop_schema.sql -d $(DBNAME) --username=postgres
 
 init-db:
-	$(DB) -f $(DB)/init/init_schema.sql $(DBNAME) --username=postgres
+	$(DB) -f $(SQLDIR)/migrations/0-schema.sql -d $(DBNAME) --username=postgres
 
 .PHONY: run clean

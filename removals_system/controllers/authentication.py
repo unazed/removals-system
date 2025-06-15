@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 
 from ..exceptions.auth_exceptions import InvalidCredentialsError
-from ..models.user import User, exists_email
+from ..models.user import User, exists_email, forgot_password
 
 from ..views.role_selection import RoleSelectionView
 from ..views.dashboard import DashboardView
@@ -98,9 +98,16 @@ class AuthenticationController(QObject):
             form.password_input.set_state("error")
             form.confirm_password_input.set_state("error")
             return
-
-        print("Pretending to verify code:", verify_data['code'])
-        self.show_login_panel()
+        
+        email = self.view.forgot_form.get_data()['email']
+        try:
+            user = forgot_password(
+                verify_data['code'], email, verify_data['password']
+            )
+        except InvalidCredentialsError:
+            form.set_all_invalid()
+            return
+        self.on_sign_in.emit(user)
 
     def show_login_panel(self) -> None:
         self.view.stack.setCurrentIndex(0)
