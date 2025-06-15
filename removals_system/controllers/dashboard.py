@@ -15,20 +15,15 @@ class DashboardController:
         self.view = view
         self.user = user
         self.current_tab: str | None = None
+        self.nav_tabs: dict[str, DashboardNavItem] = {}
 
     def setup_connections(self) -> None:
-        if self.user.role == "customer":
-            self.populate_customer_navigation()
-        elif self.user.role == "service-provider":
-            self.populate_service_provider_navigation()
+        self.setup_navigation(self.user.role)
         nav_layout = self.view.navigation_panel.layout()
         nav_layout.addStretch()
         self.append_navigation_item(
             ASSET_MAP['log-out'], "Sign out", "sign-out",
         )
-    
-    def on_nav_item_click(self, which: str) -> None:
-        print(f"Clicked {which!r}")
 
     def append_navigation_item(
         self,
@@ -42,14 +37,38 @@ class DashboardController:
             label,
             parent=self.view.navigation_panel
         )
+        item.clicked.connect(lambda: self.select_tab(ref))
         item.setProperty("nav-name", ref)
+        self.nav_tabs[ref] = item
         layout.addWidget(item)
-        item.clicked.connect(lambda: self.on_nav_item_click(ref))
 
-    def populate_customer_navigation(self) -> None:
-        for item_params in self.view.CUSTOMER_NAV_ITEMS:
-            self.append_navigation_item(*item_params)
+    def select_tab(self, nav_ref: str) -> None:
+        if nav_ref == self.current_tab:
+            return
+        if nav_ref == "sign-out":
+            from ..views.authentication import AuthenticationView
+            auth_view = AuthenticationView()
+            self.view.close()
+            auth_view.show()
+            return
+        self.select_nav_item(nav_ref)
+        self.current_tab = nav_ref
 
-    def populate_service_provider_navigation(self) -> None:
-        for item_params in self.view.SERVICE_PROVIDER_NAV_ITEMS:
+    def select_nav_item(self, which: str) -> None:
+        if self.current_tab is not None:
+            self.nav_tabs[self.current_tab].set_selected(False)
+        self.nav_tabs[which].set_selected(True)
+
+    def setup_navigation(self, role: str) -> None:
+        match role:
+            case "customer":
+                which_nav_items = self.view.CUSTOMER_NAV_ITEMS
+                which_tab = "orders"
+            case "service-provider":
+                which_nav_items = self.view.SERVICE_PROVIDER_NAV_ITEMS
+                which_tab = "dashboard"
+            case _:
+                raise RuntimeError(f"Invalid user role: {role!r}")
+        for item_params in which_nav_items:
             self.append_navigation_item(*item_params)
+        self.select_tab(which_tab)

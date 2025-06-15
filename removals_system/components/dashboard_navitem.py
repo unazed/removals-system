@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
-from PySide6.QtGui import QPixmap, QMouseEvent, QColor, QPalette
+from PySide6.QtGui import (
+    QPixmap, QMouseEvent, QColor, QPalette, QFontMetrics, QFont
+)
 from PySide6.QtCore import Signal, Qt
 
 from .svg_pixmap import SVGPixmap
@@ -40,12 +42,28 @@ class DashboardNavItem(QWidget):
         layout.addWidget(self.icon_label)
 
         self.text_label = QLabel(label)
-        self.text_label.setStyleSheet(f"color: {self.TEXT_COLOR}; font-size: 16px;")
-        layout.addWidget(self.text_label)
+        self.text_label.setStyleSheet(f"""
+            QLabel {{
+                color: {self.TEXT_COLOR};
+                font-size: 16px;
+            }}
 
+            QLabel[selected="true"] {{
+                font-weight: bold;
+            }}
+        """)
+        layout.addWidget(self.text_label)
         layout.addStretch()
 
+        self._adjust_label_width()
         self.set_selected(False)
+
+    def _adjust_label_width(self) -> None:
+        bold_font = QFont(self.text_label.font())
+        bold_font.setBold(True)
+        bold_metrics = QFontMetrics(bold_font)
+        bold_width = bold_metrics.horizontalAdvance(self.text_label.text())
+        self.text_label.setFixedWidth(bold_width)
 
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.LeftButton:
@@ -53,10 +71,12 @@ class DashboardNavItem(QWidget):
 
     def set_selected(self, selected: bool):
         self._selected = selected
-        palette = self.palette()
-        bg_color = self.SELECTED_BG if selected else self.DEFAULT_BG
-        palette.setColor(QPalette.Window, QColor(bg_color))
-        self.setPalette(palette)
+        self.text_label.setProperty(
+            "selected",
+            "true" if selected else "false"
+        )
+        self.text_label.style().unpolish(self.text_label)
+        self.text_label.style().polish(self.text_label)
 
     def is_selected(self):
         return self._selected
