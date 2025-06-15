@@ -33,7 +33,7 @@ class RoleSelectionController(QObject):
             "service-provider": self.service_provider_card_selected
         }
 
-    def setup_connections(self) -> None:
+    def setup_card_connections(self) -> None:
         for which, callback in self.card_callback_map.items():
             self.view.cards[which].clicked.connect(callback)
     
@@ -98,7 +98,9 @@ class RoleSelectionController(QObject):
             extra_user_info['country'], extra_user_info['post-code'],
             extra_user_info['address-1'], extra_user_info['address-2']
         )
-        ext, number = extract_phone_components(extra_user_info['telephone'])
+        ext, number = extract_phone_components(
+            extra_user_info['home-telephone']
+        )
         user.create_phone_number(ext, number)
         self.on_customer_submit.emit(user)
 

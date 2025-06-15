@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy
+    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy, QLabel
 )
+from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 from ..components.forms.role_selection import RoleSelectionForm
@@ -21,7 +22,7 @@ class RoleSelectionView(QWidget):
     def __init__(self, user_details: dict):
         super().__init__()
 
-        self.setWindowTitle("Removals Service")
+        self.setWindowTitle("Role selection")
         self.controller = RoleSelectionController(self, user_details)
 
         self.cards: dict[str, ClickableCard] = {}
@@ -34,7 +35,7 @@ class RoleSelectionView(QWidget):
         )
 
         self.stack.addWidget(self.role_selection_form)
-        self.controller.setup_connections()
+        self.controller.setup_card_connections()
 
         container = QWidget()
         container.setLayout(self.stack)
@@ -97,26 +98,26 @@ class RoleSelectionView(QWidget):
             body_layout.addWidget(row)
 
         add_field_row(
+            LineEdit("Address Line 1", name="address-1"),
+            LineEdit("Line 2", name="address-2")\
+                .set_optional(True),
+            LineEdit("Post code", name="post-code")
+        )
+
+        add_field_row(
             ComboBox("Country", name="country"),
-            stretch=False
+            LineEdit("Home telephone", name="home-telephone")
         )
 
         add_field_row(
             ComboBox("County", name="county"),
-            ComboBox("City", name="city")
+            LineEdit("Work telephone", name="work-telephone")\
+                .set_optional(True)
         )
 
         add_field_row(
-            LineEdit("Telephone", name="home-telephone"),
+            ComboBox("City", name="city"),
             DatePicker("Date of birth", name="dob")
-        )
-
-        address_line_2 = LineEdit("Line 2", name="address-2")
-        address_line_2.set_optional(True)
-        add_field_row(
-            LineEdit("Post code", name="post-code"),
-            LineEdit("Address Line 1", name="address-1"),
-            address_line_2
         )
 
         footer_widget = QWidget()
@@ -177,12 +178,40 @@ class RoleSelectionView(QWidget):
         body_widget = Form()
         body_layout = QVBoxLayout(body_widget)
 
+        logo_pixmap = QPixmap(ASSET_MAP['fireworks'])
+        logo_label = QLabel()
+        logo_label.setPixmap(
+            logo_pixmap.scaled(
+                210, 210,
+                Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
+        )
+        logo_label.setAlignment(Qt.AlignCenter)
+        body_layout.addWidget(logo_label)
+        body_layout.addSpacing(20)
+
+        subtitle_label = QLabel("All done on your end!")
+        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        body_layout.addWidget(subtitle_label)
+        body_layout.addSpacing(10)
+
+        caption_label = QLabel(
+            "We’re reviewing your information and will drop you an email " +
+            "as soon as everything’s good to go."
+        )
+        caption_label.setWordWrap(True)
+        caption_label.setAlignment(Qt.AlignCenter)
+        caption_label.setStyleSheet("font-size: 16px; color: #666;")
+        body_layout.addWidget(caption_label)
+
         footer_widget = QWidget()
         footer_layout = QVBoxLayout(footer_widget)
         footer_layout.setSpacing(10)
 
         back_label = PrimaryLabel("""
-            back to <a href="sign-in"><span style="color:#89a69f">sign in</span></a>
+            back to
+            <a href="sign-in"><span style="color:#89a69f">sign in</span></a>
         """)
         footer_layout.addWidget(back_label)
 
@@ -222,12 +251,11 @@ class RoleSelectionView(QWidget):
             DatePicker("Date of birth", name="dob")
         )
 
-        address_line_2 = LineEdit("Line 2", name="address-2")
-        address_line_2.set_optional(True)
         add_field_row(
             LineEdit("Post code", name="post-code"),
             LineEdit("Address Line 1", name="address-1"),
-            address_line_2
+            LineEdit("Line 2", name="address-2")\
+                .set_optional(True)
         )
 
         footer_widget = QWidget()

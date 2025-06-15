@@ -11,9 +11,11 @@ class ValidationMixin:
    
     def set_optional(self, to: bool) -> None:
         self._is_optional = to
+        return self
 
     def set_validation_trigger(self, fn) -> None:
         self._validation_trigger = fn
+        return self
 
     def register_validation_func(self, fn: ValidationFnT) -> None:
         if not hasattr(self, "state"):
@@ -24,6 +26,7 @@ class ValidationMixin:
             )
         self._validation_fn = fn
         self._validation_trigger.connect(self._validate_callback)
+        return self
     
     def _validate_callback(self) -> None:
         data = self.serialize()

@@ -174,7 +174,6 @@ SELECT country_id, county_name
 FROM Countries
 CROSS JOIN (
     VALUES
-    ('n/a'),
     ('Bedfordshire'),
     ('Berkshire'),
     ('Buckinghamshire'),
