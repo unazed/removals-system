@@ -76,10 +76,67 @@ class RoleSelectionView(QWidget):
             None
         )
     
-    def create_service_provider_form(self) -> RoleSelectionForm:
+    def create_service_provider_forms(self) -> tuple[RoleSelectionForm]:
+        return (
+            self.create_service_provider_detail_form(),
+            self.create_service_provider_business_form(),
+            self.create_service_provider_pending_form()
+        )
+
+    def create_service_provider_detail_form(self) -> RoleSelectionForm:
+        body_widget = Form()
+        body_layout = QVBoxLayout(body_widget)
+
+        def add_field_row(*fields: QWidget, stretch: bool = True):
+            row = QWidget()
+            layout = QHBoxLayout(row)
+            layout.setSpacing(15)
+            for field in fields:
+                layout.addWidget(field, stretch=1 if stretch else 0)
+                body_widget.fields.append(field)
+            body_layout.addWidget(row)
+
+        add_field_row(
+            ComboBox("Country", name="country"),
+            stretch=False
+        )
+
+        add_field_row(
+            ComboBox("County", name="county"),
+            ComboBox("City", name="city")
+        )
+
+        add_field_row(
+            LineEdit("Telephone", name="home-telephone"),
+            DatePicker("Date of birth", name="dob")
+        )
+
+        address_line_2 = LineEdit("Line 2", name="address-2")
+        address_line_2.set_optional(True)
+        add_field_row(
+            LineEdit("Post code", name="post-code"),
+            LineEdit("Address Line 1", name="address-1"),
+            address_line_2
+        )
+
+        footer_widget = QWidget()
+        footer_layout = QVBoxLayout(footer_widget)
+        footer_layout.setSpacing(10)
+
+        body_widget.primary_button = PrimaryButton("Continue")
+        body_widget.primary_button.setFixedWidth(250)
+
+        back_label = PrimaryLabel("""
+            or go <a href="back"><span style="color:#89a69f">back</span></a>
+        """)
+
+        footer_layout.addWidget(
+            body_widget.primary_button, alignment=Qt.AlignCenter
+        )
+        footer_layout.addWidget(back_label)
 
         return RoleSelectionForm(
-            f"""
+            """
             Thank you for working with us. We just need a little bit more
             <span style="color:#89a69f;">information</span>
             about you.
@@ -88,59 +145,15 @@ class RoleSelectionView(QWidget):
             footer_widget
         )
 
-
-    def create_customer_form(self) -> RoleSelectionForm:
+    def create_service_provider_business_form(self) -> RoleSelectionForm:
         body_widget = Form()
         body_layout = QVBoxLayout(body_widget)
-        
-        country_widget = QWidget()
-        country_layout = QHBoxLayout(country_widget)
-        country_layout.setSpacing(15)
-        country_field = ComboBox("Country", name="country")
-        country_layout.addWidget(country_field)
-        body_widget.fields.append(country_field)
-        body_layout.addWidget(country_widget)
-
-        county_city_widget = QWidget()
-        county_city_layout = QHBoxLayout(county_city_widget)
-        county_city_layout.setSpacing(15)
-        city_field = ComboBox("City", name="city")
-        county_field = ComboBox("County", name="county")
-        county_city_layout.addWidget(county_field)
-        county_city_layout.addWidget(city_field)
-        body_widget.fields.extend((city_field, county_field))
-        body_layout.addWidget(county_city_widget)
-
-        telephone_dob_widget = QWidget()
-        telephone_dob_layout = QHBoxLayout(telephone_dob_widget)
-        telephone_dob_layout.setSpacing(15)
-        telephone_field = LineEdit("Telephone", name="telephone")
-        dob_field = DatePicker("Date of birth", name="dob")
-        telephone_dob_layout.addWidget(telephone_field, stretch=1)
-        telephone_dob_layout.addWidget(dob_field, stretch=1)
-        body_widget.fields.extend((telephone_field, dob_field))
-        body_layout.addWidget(telephone_dob_widget)
-
-        address_widget = QWidget()
-        address_layout = QHBoxLayout(address_widget)
-        address_layout.setSpacing(15)
-        address_line_1 = LineEdit("Address Line 1", name="address-1")
-        address_line_2 = LineEdit("Line 2", name="address-2")
-        address_line_2.set_optional(True)
-        post_code = LineEdit("Post code", name="post-code")
-        address_layout.addWidget(post_code)
-        address_layout.addWidget(address_line_1)
-        address_layout.addWidget(address_line_2)
-        body_widget.fields.extend(
-            (address_line_1, address_line_2, post_code)
-        )
-        body_layout.addWidget(address_widget)
 
         footer_widget = QWidget()
         footer_layout = QVBoxLayout(footer_widget)
         footer_layout.setSpacing(10)
 
-        body_widget.primary_button = PrimaryButton("Finish")
+        body_widget.primary_button = PrimaryButton("Continue")
         body_widget.primary_button.setFixedWidth(250)
         back_label = PrimaryLabel("""
             or go <a href="back"><span style="color:#89a69f">back</span></a>
@@ -151,7 +164,90 @@ class RoleSelectionView(QWidget):
         footer_layout.addWidget(back_label)
 
         return RoleSelectionForm(
-            f"""
+            """
+            Tell us what you're
+            <span style="color:#89a69f;">working</span>
+            with
+            """,
+            body_widget,
+            footer_widget
+        )
+
+    def create_service_provider_pending_form(self) -> RoleSelectionForm:
+        body_widget = Form()
+        body_layout = QVBoxLayout(body_widget)
+
+        footer_widget = QWidget()
+        footer_layout = QVBoxLayout(footer_widget)
+        footer_layout.setSpacing(10)
+
+        back_label = PrimaryLabel("""
+            back to <a href="sign-in"><span style="color:#89a69f">sign in</span></a>
+        """)
+        footer_layout.addWidget(back_label)
+
+        return RoleSelectionForm(
+            """
+            We'll be in <span style="color:#89a69f;">touch soon</span>
+            """,
+            body_widget,
+            footer_widget
+        )
+
+    def create_customer_form(self) -> RoleSelectionForm:
+        body_widget = Form()
+        body_layout = QVBoxLayout(body_widget)
+
+        def add_field_row(*fields: QWidget, stretch: bool = True):
+            row = QWidget()
+            layout = QHBoxLayout(row)
+            layout.setSpacing(15)
+            for field in fields:
+                layout.addWidget(field, stretch=1 if stretch else 0)
+                body_widget.fields.append(field)
+            body_layout.addWidget(row)
+
+        add_field_row(
+            ComboBox("Country", name="country"),
+            stretch=False
+        )
+
+        add_field_row(
+            ComboBox("County", name="county"),
+            ComboBox("City", name="city")
+        )
+
+        add_field_row(
+            LineEdit("Telephone", name="home-telephone"),
+            DatePicker("Date of birth", name="dob")
+        )
+
+        address_line_2 = LineEdit("Line 2", name="address-2")
+        address_line_2.set_optional(True)
+        add_field_row(
+            LineEdit("Post code", name="post-code"),
+            LineEdit("Address Line 1", name="address-1"),
+            address_line_2
+        )
+
+        footer_widget = QWidget()
+        footer_layout = QVBoxLayout(footer_widget)
+        footer_layout.setSpacing(10)
+
+        body_widget.primary_button = PrimaryButton("Continue")
+        body_widget.primary_button.setFixedWidth(250)
+
+        back_label = PrimaryLabel("""
+            or go <a href="back"><span style="color:#89a69f">back</span></a>
+        """)
+
+        footer_layout.addWidget(
+            body_widget.primary_button, alignment=Qt.AlignCenter
+        )
+        footer_layout.addWidget(back_label)
+
+        return RoleSelectionForm(
+            """
             Thank you for choosing us. We just need a little bit more
             <span style="color:#89a69f;">information</span>
             about you.

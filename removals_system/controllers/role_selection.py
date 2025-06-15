@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 class RoleSelectionController(QObject):
     on_customer_submit = Signal(User)
+    on_service_provider_submit = Signal()
 
     def __init__(self, view: "RoleSelectionView", user_details: dict) -> None:
         super().__init__()
@@ -31,88 +32,55 @@ class RoleSelectionController(QObject):
             "customer": self.customer_card_selected,
             "service-provider": self.service_provider_card_selected
         }
-        self.current_view: Literal['customer', 'service-provider'] | None \
-            = None
 
     def setup_connections(self) -> None:
         for which, callback in self.card_callback_map.items():
             self.view.cards[which].clicked.connect(callback)
     
     def customer_card_selected(self) -> None:
-        self.current_view = "customer"
         details_form = self.view.create_customer_form()
-        self.register_customer_connections(details_form)
+        self.register_details_connections(details_form)
+        self.register_link_labels(details_form)
         details_form.body.on_submit(self.customer_submit_details)
         self.view.stack.addWidget(details_form)
         self.view.stack.setCurrentIndex(1)
 
     def service_provider_card_selected(self) -> None:
-        self.current_view = "service-provider"
-        details_form = self.view.create_service_provider_form()
-        self.register_service_provider_connections(details_form)
-        details_form.body.on_submit(self.service_provider_submit_details)
-        self.view.stack.addWidget(details_form)
+        details, business_info, final\
+            = self.view.create_service_provider_forms()
+
+        self.register_details_connections(details)
+        self.register_business_connections(business_info)
+        
+        self.register_link_labels(details, business_info, final)
+
+        details.body.on_submit(self.service_provider_submit_details)
+        business_info.body.on_submit(
+            self.service_provider_submit_business_details
+        )
+
+        self.view.stack.addWidget(details)
+        self.view.stack.addWidget(business_info)
+        self.view.stack.addWidget(final)
+
         self.view.stack.setCurrentIndex(1)
 
-    def register_service_provider_connections(
+    def service_provider_submit_details(
         self,
-        details_form: "RoleSelectionForm"
+        form: "RoleSelectionForm"
     ) -> None:
-        pass
-
-    def register_customer_connections(
-        self,
-        details_form: "RoleSelectionForm"
-    ) -> None:
-        country_combo: "ComboBox" = details_form.body.get_widget("country")
-        for country_code, country_name in get_countries():
-            country_combo.addItem(country_name)
-            country_combo.setItemData(
-                country_combo.count() - 1,
-                country_code,
-                Qt.UserRole
-            )
-        country_combo.currentTextChanged.connect(
-            lambda to: self.on_country_change(details_form, to)
-        )
-        county_combo: "ComboBox" = details_form.body.get_widget("county")
-        county_combo.currentTextChanged.connect(
-            lambda to: self.on_county_change(details_form, to)
-        )
-        dob_date: "DatePicker" = details_form.body.get_widget("dob")
-        dob_date.register_validation_func(validate_age_over_18)
-        telephone_field: "LineEdit" = details_form.body.get_widget("telephone")
-        telephone_field.register_validation_func(is_valid_number)
-        post_code: "LineEdit" = details_form.body.get_widget("post-code")
-        post_code.setMaxLength(
-            proc_get_length_constraint("addresses", "post_code")
-        )
-        back_label: PrimaryLabel = details_form.footer.findChild(PrimaryLabel)
-        back_label.linkActivated.connect(
-            lambda: self.view.stack.setCurrentIndex(
-                max(0, self.view.stack.currentIndex() - 1)
-            )
-        )
-
-    def on_country_change(
-        self,
-        form: "RoleSelectionForm",
-        country: str
-    ) -> None:
-        county_combo: ComboBox = form.body.get_widget("county")
-        county_combo.clear()
-        county_combo.addItems(get_counties(country))
-
-    def on_county_change(
-        self,
-        form: "RoleSelectionForm",
-        county: str
-    ) -> None:
-        country_combo: ComboBox = form.body.get_widget("country")
-        cities_combo: ComboBox = form.body.get_widget("city")
-        cities_combo.clear()
-        cities_combo.addItems(get_cities(country_combo.serialize(), county))
+        if not form.is_valid_fields():
+            return
+        self.view.stack.setCurrentIndex(2)
     
+    def service_provider_submit_business_details(
+        self,
+        form: "RoleSelectionForm"
+    ) -> None:
+        if not form.is_valid_fields():
+            return
+        self.view.stack.setCurrentIndex(3)
+
     def customer_submit_details(self, form: "Form") -> None:
         if not form.is_valid_fields():
             return
@@ -134,7 +102,77 @@ class RoleSelectionController(QObject):
         user.create_phone_number(ext, number)
         self.on_customer_submit.emit(user)
 
-    def service_provider_submit_details(self, form: "Form") -> None:
-        if not form.is_valid_fields():
-            return
-        # TODO TODO TODO
+    def register_link_labels(self, *forms: "RoleSelectionForm") -> None:
+        for form in forms:
+            label = form.findChild(PrimaryLabel)
+            if label is not None:
+                label.linkActivated.connect(self.handle_back_label)
+
+    def register_business_connections(self, form: "RoleSelectionForm") -> None:
+        pass
+    
+    def register_details_connections(self, form: "RoleSelectionForm") -> None:
+        def register_validation_if_exists(
+            widget_name: str,
+            function: callable
+        ) -> None:
+            widget = form.body.get_widget(widget_name)
+            if widget is not None:
+                widget.register_validation_func(function)
+
+        country_combo: "ComboBox" = form.body.get_widget("country")
+        if country_combo is not None:
+            for country_code, country_name in get_countries():
+                country_combo.addItem(country_name)
+                country_combo.setItemData(
+                    country_combo.count() - 1,
+                    country_code,
+                    Qt.UserRole
+                )
+            country_combo.currentTextChanged.connect(
+                lambda to: self.on_country_change(form, to)
+            )
+            county_combo: "ComboBox" = form.body.get_widget("county")
+            county_combo.currentTextChanged.connect(
+                lambda to: self.on_county_change(form, to)
+            )
+
+        register_validation_if_exists("dob", validate_age_over_18)
+        register_validation_if_exists("home-telephone", is_valid_number)
+        register_validation_if_exists("work-telephone", is_valid_number)
+
+        post_code: "LineEdit" = form.body.get_widget("post-code")
+        if post_code is not None:
+            post_code.setMaxLength(
+                proc_get_length_constraint("addresses", "post_code")
+            )
+
+    def handle_back_label(self, where: str) -> None:
+        match where:
+            case "back":
+                self.view.stack.setCurrentIndex(
+                    max(0, self.view.stack.currentIndex() - 1)
+                )
+            case "sign-in":
+                self.on_service_provider_submit.emit()
+            case _:
+                raise RuntimeError(f"Invalid back-label with href: {where}")
+
+    def on_country_change(
+        self,
+        form: "RoleSelectionForm",
+        country: str
+    ) -> None:
+        county_combo: ComboBox = form.body.get_widget("county")
+        county_combo.clear()
+        county_combo.addItems(get_counties(country))
+
+    def on_county_change(
+        self,
+        form: "RoleSelectionForm",
+        county: str
+    ) -> None:
+        country_combo: ComboBox = form.body.get_widget("country")
+        cities_combo: ComboBox = form.body.get_widget("city")
+        cities_combo.clear()
+        cities_combo.addItems(get_cities(country_combo.serialize(), county))

@@ -82,6 +82,10 @@ class NavigationController(QMainWindow):
                 self._connect_signal(
                     view.controller.on_customer_submit, "dashboard"
                 )
+                self._connect_signal(
+                    view.controller.on_service_provider_submit,
+                    "authentication"
+                )
             case _:
                 raise NotImplementedError(
                     f"Signals not implemented for view: {which_view!r}"

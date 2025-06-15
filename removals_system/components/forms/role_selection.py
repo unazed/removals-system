@@ -69,6 +69,7 @@ class RoleSelectionForm(QWidget):
 
         self.footer = footer
         if footer is not None:
+            layout.addSpacing(40)
             layout.addWidget(footer)
 
         layout.addSpacing(40)
