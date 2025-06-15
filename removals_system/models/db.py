@@ -82,3 +82,42 @@ def proc_forgot_password(code: str, email: str, password: str) -> list[DictRow]:
         "forgot_password",
         params=(code, email, password)
     )
+
+
+def proc_create_user_phone_number(
+    token: str,
+    extension: str,
+    number: str,
+    phone_type: str = "home"
+) -> str:
+    return call_proc(
+        "create_user_phone_number",
+        params=(token, extension, number, phone_type)
+    )[0]
+
+
+def proc_create_user_address(
+    token: str,
+    line_1: str, line_2: str, line_3: str,
+    city: str, county: str, country: str, post_code: str,
+    address_type: str = "home"
+) -> str:
+    return call_proc(
+        "create_user_address",
+        params=(token, line_1, line_2, line_3, city, county, country, post_code, address_type)
+    )[0]
+
+
+def proc_get_user_phone_numbers(token: str) -> list[DictRow] | None:
+    return call_proc(
+        "get_user_phone_numbers",
+        params=(token,),
+        fetch_all=True
+    )
+
+def proc_get_user_addresses(token: str) -> list[DictRow] | None:
+    return call_proc(
+        "get_user_addresses",
+        params=(token,),
+        fetch_all=True
+    )

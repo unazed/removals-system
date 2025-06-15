@@ -32,10 +32,12 @@ class DashboardNavItem(QWidget):
         layout.setContentsMargins(15, 0, 25, 0)
         layout.setSpacing(15)
 
+        self.base_icon_color = icon_color
         self.icon_label = QLabel()
-        pixmap = SVGPixmap(icon_path)
-        pixmap.set_color(icon_color)
-        self.icon_label.setPixmap(pixmap.scaled(
+        self.svg_icon = SVGPixmap(icon_path)
+        self.icon_label.setPixmap(self.svg_icon.colored(
+            QColor(icon_color)
+        ).scaled(
             24, 24,
             Qt.KeepAspectRatio, Qt.SmoothTransformation
         ))
@@ -49,7 +51,7 @@ class DashboardNavItem(QWidget):
             }}
 
             QLabel[selected="true"] {{
-                font-weight: bold;
+                color: black;
             }}
         """)
         layout.addWidget(self.text_label)
@@ -71,6 +73,9 @@ class DashboardNavItem(QWidget):
 
     def set_selected(self, selected: bool):
         self._selected = selected
+        self.icon_label.setPixmap(self.svg_icon.colored(
+            QColor("#000") if selected else self.base_icon_color
+        ))
         self.text_label.setProperty(
             "selected",
             "true" if selected else "false"

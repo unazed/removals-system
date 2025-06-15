@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, Signal, QObject
 
 from ..models.user import User, register_user
 from ..models.addresses import get_countries, get_counties, get_cities
-from ..models.telephone import is_valid_number
+from ..models.telephone import is_valid_number, extract_phone_components
 from ..models.db import proc_get_length_constraint
 from ..views.dashboard import DashboardView
 from ..components.forms.util_validation import validate_age_over_18
@@ -53,6 +53,12 @@ class RoleSelectionController(QObject):
         details_form.body.on_submit(self.service_provider_submit_details)
         self.view.stack.addWidget(details_form)
         self.view.stack.setCurrentIndex(1)
+
+    def register_service_provider_connections(
+        self,
+        details_form: "RoleSelectionForm"
+    ) -> None:
+        pass
 
     def register_customer_connections(
         self,
@@ -119,6 +125,13 @@ class RoleSelectionController(QObject):
             "dob": extra_user_info['dob'].toPython(),
             "role": "customer"
         })
+        user.create_address(
+            extra_user_info['city'], extra_user_info['county'],
+            extra_user_info['country'], extra_user_info['post-code'],
+            extra_user_info['address-1'], extra_user_info['address-2']
+        )
+        ext, number = extract_phone_components(extra_user_info['telephone'])
+        user.create_phone_number(ext, number)
         self.on_customer_submit.emit(user)
 
     def service_provider_submit_details(self, form: "Form") -> None:

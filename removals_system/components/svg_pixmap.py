@@ -3,15 +3,19 @@ from PySide6.QtGui import QPainter, QPixmap, QColor
 from PySide6.QtCore import Qt, QSize
 
 
-class SVGPixmap(QPixmap):
+class SVGPixmap:
     def __init__(self, path: str, size: QSize = QSize(24, 24)):
-        super().__init__(size)
         self.renderer = QSvgRenderer(path)
+        self.size = size
 
-    def set_color(self, color: QColor):
-        self.fill(Qt.transparent)
-        painter = QPainter(self)
+    def colored(self, color: QColor) -> QPixmap:
+        pixmap = QPixmap(self.size)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
         self.renderer.render(painter)
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-        painter.fillRect(self.rect(), color)
+        painter.fillRect(pixmap.rect(), color)
         painter.end()
+
+        return pixmap

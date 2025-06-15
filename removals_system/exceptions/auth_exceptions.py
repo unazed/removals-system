@@ -8,3 +8,7 @@ class InvalidCredentialsError(AuthenticationError):
 
 class UserAlreadyExistsError(AuthenticationError):
     """Raised during signup when the user already exists."""
+
+
+class InvalidSessionError(AuthenticationError):
+    """Raised whenever an invalid session token is passed to a procedure."""

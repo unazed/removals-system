@@ -18,4 +18,4 @@ def get_country_code(country_code: str) -> str:
 
 def extract_phone_components(number: str) -> tuple[str, str]:
     result = phonenumbers.parse(number)
-    return (result.country_code, result.national_number)
+    return (str(result.country_code), str(result.national_number))

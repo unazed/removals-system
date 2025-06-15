@@ -77,7 +77,17 @@ class RoleSelectionView(QWidget):
         )
     
     def create_service_provider_form(self) -> RoleSelectionForm:
-        raise NotImplementedError
+
+        return RoleSelectionForm(
+            f"""
+            Thank you for working with us. We just need a little bit more
+            <span style="color:#89a69f;">information</span>
+            about you.
+            """,
+            body_widget,
+            footer_widget
+        )
+
 
     def create_customer_form(self) -> RoleSelectionForm:
         body_widget = Form()

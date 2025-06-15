@@ -16,7 +16,7 @@ BEGIN
 
   IF NOT FOUND THEN
     RETURN QUERY
-    SELECT 'Email does not exist', NULL, NULL;
+    SELECT 'Invalid email or password', NULL, NULL;
   END IF;
 
   IF crypt(p_password, stored_hash) = stored_hash THEN
