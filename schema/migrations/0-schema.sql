@@ -12,29 +12,30 @@ BEGIN;
 COMMIT;
 
 BEGIN;
-  \i 'init/1-types.sql'
-  \i 'init/2-countries.sql'
+  \i 'migrations/1-types.sql'
+  \i 'migrations/2-countries.sql'
 COMMIT;
 
-\i 'init/3-envvars.sql'
+\i 'migrations/3-envvars.sql'
 
 BEGIN;
-  \i 'init/proc/get_envvars.sql'
-  \i 'init/proc/login.sql'
-  \i 'init/proc/register.sql'
-  \i 'init/proc/email.sql'
-  \i 'init/proc/addresses.sql'
-COMMIT;
-
-BEGIN;
-  \i 'init/proc/triggers/bids.sql'
-  \i 'init/proc/triggers/items.sql'
-  \i 'init/proc/triggers/users.sql'
-  \i 'init/proc/triggers/orders.sql'
+  \i 'migrations/proc/get_envvars.sql'
+  \i 'migrations/proc/login.sql'
+  \i 'migrations/proc/register.sql'
+  \i 'migrations/proc/email.sql'
+  \i 'migrations/proc/addresses.sql'
+  \i 'migrations/proc/util.sql'
 COMMIT;
 
 BEGIN;
-  \i 'init/4-permissions.sql'
-  \i 'init/5-triggers.sql'
-  \i 'init/6-indexes.sql'
+  \i 'migrations/proc/triggers/bids.sql'
+  \i 'migrations/proc/triggers/items.sql'
+  \i 'migrations/proc/triggers/users.sql'
+  \i 'migrations/proc/triggers/orders.sql'
+COMMIT;
+
+BEGIN;
+  \i 'migrations/4-permissions.sql'
+  \i 'migrations/5-triggers.sql'
+  \i 'migrations/6-indexes.sql'
 COMMIT;

@@ -101,7 +101,7 @@ class RoleSelectionController:
             "dob": extra_user_info['dob'].toPython(),
             "role": "customer"
         })
-        self.dashboard = Dashboard(user)
+        self.dashboard = DashboardView(user)
         self.view.close()
         self.dashboard.show()
     

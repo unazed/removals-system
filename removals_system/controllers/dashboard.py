@@ -14,6 +14,7 @@ class DashboardController:
     def __init__(self, view: "DashboardView", user: "User") -> None:
         self.view = view
         self.user = user
+        self.current_tab: str | None = None
 
     def setup_connections(self) -> None:
         if self.user.role == "customer":
@@ -24,16 +25,16 @@ class DashboardController:
         nav_layout.addStretch()
         self.append_navigation_item(
             ASSET_MAP['log-out'], "Sign out", "sign-out",
-            has_underline=False
         )
     
+    def on_nav_item_click(self, which: str) -> None:
+        print(f"Clicked {which!r}")
+
     def append_navigation_item(
         self,
         icon_path: str,
         label: str,
         ref: str,
-        *,
-        has_underline: bool = False
     ) -> None:
         layout = self.view.navigation_panel.layout()
         item = DashboardNavItem(
@@ -43,17 +44,12 @@ class DashboardController:
         )
         item.setProperty("nav-name", ref)
         layout.addWidget(item)
-
-        if has_underline:
-            line = QFrame()
-            line.setFrameShape(QFrame.HLine)
-            line.setFrameShadow(QFrame.Plain)
-            line.setStyleSheet("color: #ccc;")
-            layout.addWidget(line)
+        item.clicked.connect(lambda: self.on_nav_item_click(ref))
 
     def populate_customer_navigation(self) -> None:
         for item_params in self.view.CUSTOMER_NAV_ITEMS:
             self.append_navigation_item(*item_params)
 
     def populate_service_provider_navigation(self) -> None:
-        pass
+        for item_params in self.view.SERVICE_PROVIDER_NAV_ITEMS:
+            self.append_navigation_item(*item_params)
