@@ -4,6 +4,7 @@ from ..models.user import User, register_user
 from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number, extract_phone_components
 from ..models.db import proc_get_length_constraint
+from ..models.db_types import get_type_values
 from ..views.dashboard import DashboardView
 from ..components.forms.util_validation import validate_age_over_18
 from ..components.primary_label import PrimaryLabel
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from ..components.date_picker import DatePicker
     from ..components.line_edit import LineEdit
     from ..components.form import Form
+    from ..components.item_input import ItemInput
 
 
 class RoleSelectionController(QObject):
@@ -111,7 +113,8 @@ class RoleSelectionController(QObject):
                 label.linkActivated.connect(self.handle_back_label)
 
     def register_business_connections(self, form: "RoleSelectionForm") -> None:
-        pass
+        item_input: "ItemInput" = form.body.get_widget("items")
+        item_input.add_combo_items(*get_type_values("BusinessResourceTypes"))
     
     def register_details_connections(self, form: "RoleSelectionForm") -> None:
         def register_validation_if_exists(

@@ -36,6 +36,6 @@ CREATE TABLE BusinessResources (
     ON DELETE CASCADE,
   CONSTRAINT FK_BusinessResources__resource_name
     FOREIGN KEY (resource_name)
-    REFERENCES BusinessResourceTypes(resource_name)
+    REFERENCES types.BusinessResourceTypes(resource_name)
     ON DELETE RESTRICT
 );

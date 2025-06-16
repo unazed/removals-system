@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy, QLabel
+    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy, QLabel,
+    QLayout, QSpinBox
 )
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
@@ -12,6 +13,7 @@ from ..components.line_edit import LineEdit
 from ..components.combo_box import ComboBox
 from ..components.date_picker import DatePicker
 from ..components.form import Form
+from ..components.item_input import ItemInput
 
 from ..controllers.role_selection import RoleSelectionController
 
@@ -148,7 +150,56 @@ class RoleSelectionView(QWidget):
 
     def create_service_provider_business_form(self) -> RoleSelectionForm:
         body_widget = Form()
-        body_layout = QVBoxLayout(body_widget)
+        body_layout = QHBoxLayout(body_widget)
+
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        body_layout.addWidget(left_widget, stretch=1)
+
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        body_layout.addWidget(right_widget, stretch=1)
+
+        def add_field_row(
+            layout: QLayout,
+            *fields: QWidget,
+            stretch: bool = True,
+        ):
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setSpacing(15)
+            widget: Form = layout.parentWidget()
+            for field in fields:
+                row_layout.addWidget(field, stretch=1 if stretch else 0)
+                body_widget.fields.append(field)
+            layout.addWidget(row)
+
+        add_field_row(
+            left_layout,
+            LineEdit("Business name", name="business-name"),
+        )
+        add_field_row(
+            left_layout,
+            LineEdit("Number of employees", name="nr-employees"),
+        )
+        add_field_row(
+            left_layout,
+            LineEdit("Company registration number", name="crn"),
+        )
+        add_field_row(
+            left_layout,
+            LineEdit("VAT number (if applicable)", name="vat-number")\
+                .set_optional(True),
+        )
+        add_field_row(
+            left_layout,
+            LineEdit("UTR (if applicable)", name="utr-number")\
+                .set_optional(True),
+        )
+
+        item_input = ItemInput("Item type", name="items")
+        right_layout.addWidget(item_input, stretch=1)
+        body_widget.fields.append(item_input)
 
         footer_widget = QWidget()
         footer_layout = QVBoxLayout(footer_widget)

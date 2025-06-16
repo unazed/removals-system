@@ -1,4 +1,4 @@
-CREATE TABLE AddressTypes (
+CREATE TABLE types.AddressTypes (
   address_type      TEXT NOT NULL,
 
   CONSTRAINT PK_AddressTypes
@@ -12,7 +12,7 @@ CREATE TABLE AddressTypes (
     ))
 );
 
-CREATE TABLE OrderStaffRoles (
+CREATE TABLE types.OrderStaffRoles (
   staff_role        TEXT NOT NULL,
 
   CONSTRAINT PK_OrderStaffRoles
@@ -26,7 +26,7 @@ CREATE TABLE OrderStaffRoles (
     ))
 );
 
-CREATE TABLE PhoneNumberTypes (
+CREATE TABLE types.PhoneNumberTypes (
   phone_number_type TEXT NOT NULL,
 
   CONSTRAINT PK_PhoneNumberTypes
@@ -40,7 +40,7 @@ CREATE TABLE PhoneNumberTypes (
     ))
 );
 
-CREATE TABLE BidActionType (
+CREATE TABLE types.BidActionType (
   action_name     TEXT NOT NULL,
 
   CONSTRAINT PK_BidActionType
@@ -54,7 +54,7 @@ CREATE TABLE BidActionType (
     ))
 );
 
-CREATE TABLE BusinessResourceTypes (
+CREATE TABLE types.BusinessResourceTypes (
   resource_name   TEXT NOT NULL,
 
   CONSTRAINT PK_BusinessResourceTypes
@@ -69,7 +69,7 @@ CREATE TABLE BusinessResourceTypes (
     ))
 );
 
-CREATE TABLE UserRoles (
+CREATE TABLE types.UserRoles (
   user_role       TEXT NOT NULL,
 
   CONSTRAINT PK_UserRoles
@@ -83,7 +83,7 @@ CREATE TABLE UserRoles (
     ))
 );
 
-CREATE TABLE UserStatus (
+CREATE TABLE types.UserStatus (
   user_status     TEXT NOT NULL,
 
   CONSTRAINT PK_UserStatus

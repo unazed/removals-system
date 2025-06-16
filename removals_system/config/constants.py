@@ -15,7 +15,8 @@ ASSET_MAP: dict[str, str] = {
     "hand-coins": ("icons", "hand-coins.svg"),
     "user": ("icons", "user.svg"),
     "log-out": ("icons", "log-out.svg"),
-    "fireworks": "fireworks.png"
+    "fireworks": "fireworks.png",
+    "x": ("icons", "x.svg")
 }
 
 for asset_name, asset_path in ASSET_MAP.items():

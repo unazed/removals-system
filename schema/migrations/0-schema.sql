@@ -26,7 +26,8 @@ BEGIN;
   \i 'schema/migrations/proc/addresses.sql'
   \i 'schema/migrations/proc/util.sql'
   \i 'schema/migrations/proc/forgot_password.sql'
-  \i 'schema/migrations/proc/phone_numbers.sql';
+  \i 'schema/migrations/proc/phone_numbers.sql'
+  \i 'schema/migrations/proc/types.sql'
 COMMIT;
 
 BEGIN;

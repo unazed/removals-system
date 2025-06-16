@@ -7,6 +7,10 @@ from ..config.settings import DB_CONFIG
 from datetime import datetime
 
 
+def _flatten_nested_list(l: list[list]) -> list:
+    return [sub_l[0] for sub_l in l]
+
+
 def get_connection():
     return psycopg2.connect(**DB_CONFIG)
 
@@ -15,7 +19,8 @@ def call_proc(
     proc_name: str,
     params=(),
     *,
-    fetch_all: bool = False
+    fetch_all: bool = False,
+    flatten: bool = False
 ) -> list[DictRow]:
     try:
         with (
@@ -24,7 +29,8 @@ def call_proc(
         ):
             cur.callproc(proc_name, params)
             if fetch_all:
-                return cur.fetchall()
+                result = cur.fetchall()
+                return _flatten_nested_list(result) if flatten else result
             val = cur.fetchone()
             return val
     finally:
@@ -115,9 +121,26 @@ def proc_get_user_phone_numbers(token: str) -> list[DictRow] | None:
         fetch_all=True
     )
 
+
 def proc_get_user_addresses(token: str) -> list[DictRow] | None:
     return call_proc(
         "get_user_addresses",
         params=(token,),
         fetch_all=True
+    )
+
+
+def proc_get_type_values(table: str) -> list[DictRow]:
+    return call_proc(
+        "get_type_values",
+        params=(table,),
+        fetch_all=True,
+        flatten=True
+    )
+
+def proc_get_type_table_names() -> list[DictRow]:
+    return call_proc(
+        "get_type_table_names",
+        fetch_all=True,
+        flatten=True
     )

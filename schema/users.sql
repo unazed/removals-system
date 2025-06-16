@@ -26,11 +26,11 @@ CREATE TABLE Users (
 
   CONSTRAINT FK_Users__user_role
     FOREIGN KEY (user_role)
-    REFERENCES UserRoles(user_role)
+    REFERENCES types.UserRoles(user_role)
     ON DELETE SET NULL,
   CONSTRAINT FK_Users__user_status
     FOREIGN KEY (user_status)
-    REFERENCES UserStatus(user_status)
+    REFERENCES types.UserStatus(user_status)
     ON DELETE SET NULL,
   CONSTRAINT FK_Users__business
     FOREIGN KEY (business_id)
@@ -56,7 +56,7 @@ CREATE TABLE UserPhoneNumbers (
     ON DELETE CASCADE,
   CONSTRAINT FK_UserPhoneNumbers__phone_type
     FOREIGN KEY (phone_number_type)
-    REFERENCES PhoneNumberTypes(phone_number_type)
+    REFERENCES types.PhoneNumberTypes(phone_number_type)
     ON DELETE RESTRICT
 );
 
@@ -78,6 +78,6 @@ CREATE TABLE UserAddresses (
     ON DELETE CASCADE,
   CONSTRAINT FK_UserAddresses__address_type
     FOREIGN KEY (address_type)
-    REFERENCES AddressTypes(address_type)
+    REFERENCES types.AddressTypes(address_type)
     ON DELETE RESTRICT
 );

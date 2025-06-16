@@ -58,7 +58,7 @@ CREATE TABLE BidActions (
     ON DELETE RESTRICT,
   CONSTRAINT FK_BidActions__action_type
     FOREIGN KEY (action_type)
-    REFERENCES BidActionType(action_name)
+    REFERENCES types.BidActionType(action_name)
     ON DELETE RESTRICT
 );
 
@@ -80,7 +80,7 @@ CREATE TABLE OrderStaff (
     ON DELETE RESTRICT,
   CONSTRAINT FK_OrderStaff__role
     FOREIGN KEY (staff_role)
-    REFERENCES OrderStaffRoles(staff_role)
+    REFERENCES types.OrderStaffRoles(staff_role)
     ON DELETE RESTRICT
 );
 

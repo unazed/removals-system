@@ -26,16 +26,14 @@ class ComboBox(QComboBox, StyledWidget, ValidationMixin):
         self.apply_styling(stylesheet=f"""
             QComboBox::drop-down {{
                 border: none;
+                width: 24px;
             }}
 
             QComboBox::down-arrow {{
                 image: url('{ASSET_MAP['chevron-down']}');
-            }}
-
-            QLineEdit {{
-                background: transparent;
-                border: none;
-                padding-left: 4px;
+                width: 16px;
+                height: 16px;
+                top: 7px;
             }}
         """)
     
