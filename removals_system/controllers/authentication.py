@@ -3,17 +3,13 @@ from PySide6.QtCore import QObject, Signal
 from ..exceptions.auth_exceptions import InvalidCredentialsError
 from ..models.user import User, exists_email, forgot_password
 
-from ..views.role_selection import RoleSelectionView
-from ..views.dashboard import DashboardView
-
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..components.primary_label import PrimaryLabel
-    from ..components.forms.login import LoginForm
-    from ..components.forms.signup import SignupForm
-    from ..components.forms.forgot_password import ForgotPasswordForm
-    from ..components.forms.verify_code import VerifyCodeForm
-    from ..views.authentication import AuthenticationView
+    from ..components import PrimaryLabel
+    from ..components.forms import (
+        LoginForm, SignupForm, ForgotPasswordForm, VerifyCodeForm,
+    )
+    from ..views import AuthenticationView, RoleSelectionView
 
 
 class AuthenticationController(QObject):
@@ -23,7 +19,7 @@ class AuthenticationController(QObject):
     def __init__(self, view: "AuthenticationView") -> None:
         super().__init__()
         self.view = view
-        self._role_selection_view: RoleSelectionView | None = None
+        self._role_selection_view: "RoleSelectionView" | None = None
 
     def setup_connections(self):
         self.view.login_form.on_submit(self.handle_signin)

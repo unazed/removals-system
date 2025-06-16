@@ -6,18 +6,17 @@ from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
 
-from ..form import Form
-
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from PySide6.QtGui import QResizeEvent
+    from .. import Form
 
 
 class RoleSelectionForm(QWidget):
     def __init__(
         self,
         title: str,
-        body: Form,
+        body: "Form",
         footer: QWidget | None = None
     ) -> None:
         super().__init__()

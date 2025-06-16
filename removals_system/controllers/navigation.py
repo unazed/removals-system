@@ -1,19 +1,16 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
-
-from ..views.authentication import AuthenticationView
-from ..views.role_selection import RoleSelectionView
-from ..views.dashboard import DashboardView
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Any, Optional, Callable
 from functools import partial
+import importlib
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
-    from Pyside6.QtCore import Signal
-
-    from ..controllers.authentication import AuthenticationController
-    from ..controllers.dashboard import DashboardController
-    from ..controllers.role_selection import RoleSelectionController
+    from PySide6.QtCore import Signal
+    from . import (
+        AuthenticationController,
+        DashboardController,
+        RoleSelectionController
+    )
 
 
 class NavigationController(QMainWindow):
@@ -24,17 +21,23 @@ class NavigationController(QMainWindow):
 
         self.view_map = {
             "authentication": {
-                "class": AuthenticationView,
+                "module_path": "..views",
+                "class_name": "AuthenticationView",
+                "class": None,
                 "instance": None,
                 "reusable": True
             },
             "role_selection": {
-                "class": RoleSelectionView,
+                "module_path": "..views",
+                "class_name": "RoleSelectionView", 
+                "class": None,
                 "instance": None,
                 "reusable": True
             },
             "dashboard": {
-                "class": DashboardView,
+                "module_path": "..views",
+                "class_name": "DashboardView",
+                "class": None,
                 "instance": None,
                 "reusable": False
             }
@@ -42,18 +45,33 @@ class NavigationController(QMainWindow):
 
         self.show_view(default_view)
 
+    def _load_view_class(self, which_view: str) -> type:
+        view_params = self.view_map[which_view]
+        
+        if view_params['class'] is None:
+            base_package = __name__.split('.')[0]
+            module_path = f"{base_package}.views"
+            module = importlib.import_module(module_path)
+            view_class = getattr(module, view_params['class_name'])
+            view_params['class'] = view_class
+            
+        return view_params['class']
+
     def show_view(self, which_view: str, *args, **kwargs) -> None:
         if which_view not in self.view_map:
             raise ValueError(f"Unknown view requested: {which_view!r}")
 
         view_params = self.view_map[which_view]
+        
         if (view_inst := view_params['instance']) is not None:
             if view_params['reusable']:
                 self.stacked_widget.setCurrentWidget(view_inst)
                 return
             self.clear_view_instance(which_view)
         
-        view_inst = view_params['class'](*args, **kwargs)
+        view_class = self._load_view_class(which_view)
+        view_inst = view_class(*args, **kwargs)
+        
         self._connect_view_signals(which_view, view_inst)
         view_params['instance'] = view_inst
         self.stacked_widget.addWidget(view_inst)
@@ -104,4 +122,3 @@ class NavigationController(QMainWindow):
         self.stacked_widget.removeWidget(view_inst)
         view_inst.deleteLater()
         view_params['instance'] = None
-

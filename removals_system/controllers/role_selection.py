@@ -5,20 +5,17 @@ from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number, extract_phone_components
 from ..models.db import proc_get_length_constraint
 from ..models.db_types import get_type_values
-from ..views.dashboard import DashboardView
 from ..components.forms.util_validation import validate_age_over_18
-from ..components.primary_label import PrimaryLabel
+from ..components import PrimaryLabel
 
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    from ..views.role_selection import RoleSelectionView
-    from ..components.forms.role_selection import RoleSelectionForm
-    from ..components.combo_box import ComboBox
-    from ..components.date_picker import DatePicker
-    from ..components.line_edit import LineEdit
-    from ..components.form import Form
-    from ..components.item_input import ItemInput
+    from ..views import RoleSelectionView
+    from ..components.forms import RoleSelectionForm
+    from ..components import (
+        ComboBox, DatePicker, LineEdit, Form, ItemInput
+    )
 
 
 class RoleSelectionController(QObject):

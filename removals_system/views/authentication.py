@@ -4,13 +4,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
-from ..components.forms.signup import SignupForm
-from ..components.forms.login import LoginForm
-from ..components.forms.forgot_password import ForgotPasswordForm
-from ..components.forms.verify_code import VerifyCodeForm
-
-from ..controllers.authentication import AuthenticationController
-
+from ..components.forms import (
+    SignupForm, LoginForm, ForgotPasswordForm, VerifyCodeForm
+)
+from ..controllers import AuthenticationController
 from ..config.constants import ASSET_MAP
 
 

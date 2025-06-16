@@ -1,11 +1,11 @@
 from PySide6.QtCore import QObject, Signal
 
-from ..components.dashboard_navitem import DashboardNavItem
+from ..components import DashboardNavItem
 from ..config.constants import ASSET_MAP
 
 import typing
 if typing.TYPE_CHECKING:
-    from ..views.dashboard import DashboardView
+    from ..views import DashboardView
     from ..models.user import User
 
 

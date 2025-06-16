@@ -5,8 +5,7 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
 from ..models.user import User
-from ..controllers.dashboard import DashboardController
-
+from ..controllers import DashboardController
 from ..config.constants import ASSET_MAP
 
 

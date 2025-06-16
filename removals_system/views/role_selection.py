@@ -6,17 +6,11 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 from ..components.forms.role_selection import RoleSelectionForm
-from ..components.clickable_card import ClickableCard
-from ..components.primary_button import PrimaryButton
-from ..components.primary_label import PrimaryLabel
-from ..components.line_edit import LineEdit
-from ..components.combo_box import ComboBox
-from ..components.date_picker import DatePicker
-from ..components.form import Form
-from ..components.item_input import ItemInput
-
-from ..controllers.role_selection import RoleSelectionController
-
+from ..controllers import RoleSelectionController
+from ..components import (
+    ClickableCard, PrimaryButton, PrimaryLabel, LineEdit, ComboBox, DatePicker,
+    Form, ItemInput
+)
 from ..config.constants import ASSET_MAP
 
 

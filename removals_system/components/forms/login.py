@@ -7,10 +7,7 @@ from PySide6.QtCore import Qt
 from ...config.constants import ASSET_MAP
 from ...models.user import is_valid_email, exists_email
 
-from ..line_edit import LineEdit
-from ..primary_button import PrimaryButton
-from ..primary_label import PrimaryLabel
-from ..form import Form
+from .. import LineEdit, PrimaryButton, PrimaryLabel, Form
 
 
 class LoginForm(Form):

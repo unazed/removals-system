@@ -5,11 +5,7 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 
 from ...config.constants import ASSET_MAP
-
-from ..line_edit import LineEdit
-from ..primary_button import PrimaryButton
-from ..primary_label import PrimaryLabel
-from ..form import Form
+from .. import LineEdit, PrimaryButton, PrimaryLabel, Form
 
 
 class VerifyCodeForm(Form):
