@@ -1,6 +1,5 @@
-from PySide6.QtWidgets import QLabel, QWidget
+from PySide6.QtWidgets import QLabel
 from PySide6.QtCore import QEvent, Signal
-from typing import Callable, Protocol
 
 
 class StyledWidget:
@@ -12,7 +11,10 @@ class StyledWidget:
 
     def setup_label(self, label: str) -> None:
         self.label_widget = QLabel(label, self)
-        self.label_widget.setStyleSheet(f"color: {self.PRIMARY_COLOR}; font-size: 10px;")
+        self.label_widget.setStyleSheet(f"""
+            color: {self.PRIMARY_COLOR};
+            font-size: 10px;
+        """)
         self.label_widget.move(4, 0)
         self.setFixedHeight(48)
         self.state.connect(self.set_state)

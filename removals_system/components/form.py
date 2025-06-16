@@ -39,6 +39,12 @@ class Form(QWidget):
         if any((which := field).name == name for field in self.fields):
             return which
         return default
+
+    def get_widget(self, name: str, default: None = None) -> "QWidget | None":
+        for field in self.fields:
+            if field.name == name:
+                return field
+        return default
         
     def get_data(self) -> dict[str, object]:
         return {
