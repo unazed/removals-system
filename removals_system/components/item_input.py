@@ -35,7 +35,7 @@ class ItemInput(QWidget, ValidationMixin):
         self.spinbox = QSpinBox()
         self.spinbox.setMinimum(min)
         self.spinbox.setSingleStep(step)
-        self.spinbox.setFixedSize(48, 32)
+        self.spinbox.setFixedSize(64, 32)
 
         self.combo_box = ComboBox(label)
         self.add_button = PrimaryButton("+")

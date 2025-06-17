@@ -1,3 +1,8 @@
+INSERT INTO types.BusinessStaffRoles (staff_role) VALUES
+  ('executive'),
+  ('employee')
+ON CONFLICT DO NOTHING;
+
 INSERT INTO types.AddressTypes (address_type) VALUES
   ('home'),
   ('office'),

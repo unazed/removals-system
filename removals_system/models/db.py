@@ -4,7 +4,10 @@ import psycopg2.extras
 
 from ..config.settings import DB_CONFIG
 
-from typing import TypeVar, Generic, Optional, Any, TYPE_CHECKING
+from typing import (
+    TypeVar, Generic, Optional, Type, Sequence, Literal, overload,
+    TYPE_CHECKING
+)
 from dataclasses import dataclass
 import json
 
@@ -15,22 +18,23 @@ if TYPE_CHECKING:
 T = TypeVar('T')
 
 @dataclass
+class DbError:
+    code: str
+    message: str
+
+@dataclass
 class DbResult(Generic[T]):
     success: bool
-    data: Optional[T] = None
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
+    data: T | None = None
+    error: DbError | None = None
     
     @classmethod
-    def success_result(cls, data: T) -> 'DbResult[T]':
-        return cls(success=True, data=data)
-    
-    @classmethod
-    def error_result(cls, error_code: str, error_message: str) -> 'DbResult[T]':
+    def from_db(cls, data: list) -> 'DbResult[T]':
+        if data[0]:
+            return cls(success=data[0], data=data[2])
         return cls(
-            success=False,
-            error_code=error_code,
-            error_message=error_message
+            success=data[0],
+            error=DbError(code=data[1].code, message=data[1].message)
         )
 
 
@@ -38,12 +42,10 @@ class DbResult(Generic[T]):
 class AuthenticationData:
     token: str
     user_role: str
-    user_id: int
 
 
 @dataclass
 class PhoneNumberData:
-    phone_number_id: int
     phone_extension: str
     phone_number: str
     phone_number_type: str
@@ -51,7 +53,6 @@ class PhoneNumberData:
 
 @dataclass
 class AddressData:
-    address_id: int
     line_1: str
     line_2: str
     line_3: str
@@ -62,21 +63,35 @@ class AddressData:
     country_name: str
 
 
+@dataclass
+class BusinessStaffRole:
+    role: str
+
+
+@dataclass
+class EmptyData:
+    pass
+
+
 def call_proc(
     proc_name: str,
-    params=(),
+    params: Sequence[object] = (),
     *,
     flatten: bool = False,
-    fetch_all: bool = False
+    fetch_all: bool = False,
+    composites: Sequence[str] | None = None
 ) -> list[DictRow]:
     try:
         with (
             psycopg2.connect(**DB_CONFIG) as conn,
             conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur
         ):
+            if composites is not None:
+                for comp in composites:
+                    psycopg2.extras.register_composite(comp, conn)
             cur.callproc(proc_name, params)
             if fetch_all:
-                result = cur.fetch_all()
+                result = cur.fetchall()
                 if flatten:
                     result = [i[0] for i in result]
                 return result
@@ -85,24 +100,49 @@ def call_proc(
         conn.close()
 
 
+@overload
 def call_proc_result(
+    result_t: Type[T],
     proc_name: str,
-    params: tuple = ()
-) -> DbResult:
-    return DbResult(call_proc(proc_name, params))
+    params: tuple = ...,
+    *,
+    is_aggregate: Literal[False] = False
+) -> DbResult[T]: ...
+
+
+@overload
+def call_proc_result(
+    result_t: Type[T],
+    proc_name: str,
+    params: tuple = ...,
+    *,
+    is_aggregate: Literal[True]
+) -> DbResult[list[T]]: ...
+
+
+def call_proc_result(
+    result_t: Type[T],
+    proc_name: str,
+    params: tuple = (),
+    *,
+    is_aggregate: bool = False
+) -> DbResult[T] | DbResult[list[T]]:
+    row = DbResult.from_db(call_proc(
+        proc_name, params, composites=("error_t", "result_t")
+    ))
+    if row.success:
+        if is_aggregate:
+            row.data = list(map(result_t, row.data))
+        else:
+            row.data = result_t(**(row.data or {}))
+    return row
 
 
 def proc_login_user(email: str, password: str) -> DbResult[AuthenticationData]:
-    row = call_proc_result("login_user", (email, password))
-    print(row)
-    if row.success:
-        data = json.loads(row.data)
-        return DbResult.success_result(AuthenticationData(
-            token=data['token'],
-            user_role=data['user_role'],
-        ))
-
-    return DbResult.error_result(row.error.code, row.error.message)
+    return call_proc_result(
+        AuthenticationData,
+        "login_user", params=(email, password)
+    )
 
 
 def proc_register_user(
@@ -113,30 +153,26 @@ def proc_register_user(
     dob: "datetime",
     role: str
 ) -> DbResult[AuthenticationData]:
-    row = call_proc("register_user", (
-        forename, surname, email, dob, password, role
-    ))
-    
-    if row.success:
-        data = json.loads(row.data)
-        return DbResult.success_result(AuthenticationData(
-            token=data['token'],
-            user_role=data['user_role'],
-        ))
-
-    return DbResult.error_result(row.error.code, row.error.message)
+    return call_proc_result(
+        AuthenticationData,
+        "register_user", (forename, surname, email, dob, password, role)
+    )
 
 
 def proc_is_valid_email(email: str) -> bool:
-    return call_proc("is_valid_email", params=(email,))
+    return call_proc("is_valid_email", params=(email,))[0]
 
 
 def proc_exists_email(email: str) -> bool:
-    return call_proc("exists_email", params=(email,))
+    return call_proc("exists_email", params=(email,))[0]
     
 
 def proc_get_countries() -> list[str]:
-    return call_proc("get_countries", params=())
+    return call_proc(
+        "get_countries",
+        params=(),
+        fetch_all=True
+    )
 
 
 def proc_get_counties(country_name: str) -> list[str]:
@@ -161,7 +197,7 @@ def proc_get_length_constraint(table: str, column: str) -> int:
     return call_proc(
         "get_length_constraint",
         params=(table, column)
-    )
+    )[0]
 
 
 def proc_forgot_password(
@@ -169,16 +205,10 @@ def proc_forgot_password(
     email: str,
     password: str
 ) -> DbResult[AuthenticationData]:
-    row = call_proc("forgot_password", params=(code, email, password))
-    
-    if row.success:
-        data = json.loads(row.data)
-        return DbResult.success_result(AuthenticationData(
-            token=data['token'],
-            user_role=data['user_role'],
-        ))
-
-    return DbResult.error_result(row.error.code, row.error.message)
+    return call_proc_result(
+        AuthenticationData,
+        "forgot_password", params=(code, email, password)
+    )
 
 
 def proc_create_user_phone_number(
@@ -187,8 +217,8 @@ def proc_create_user_phone_number(
     number: str,
     phone_type: str = "home"
 ) -> DbResult:
-    return call_proc(
-        "create_user_phone_number",
+    return call_proc_result(
+        EmptyData, "create_user_phone_number",
         params=(token, extension, number, phone_type)
     )
 
@@ -199,8 +229,8 @@ def proc_create_user_address(
     city: str, county: str, country: str, post_code: str,
     address_type: str = "home"
 ) -> DbResult:
-    return call_proc(
-        "create_user_address",
+    return call_proc_result(
+        EmptyData, "create_user_address",
         params=(
             token,
             line_1, line_2, line_3,
@@ -211,37 +241,19 @@ def proc_create_user_address(
 
 
 def proc_get_user_phone_numbers(token: str) -> DbResult[list[PhoneNumberData]]:
-    rows = call_proc(
-        "get_user_phone_numbers",
+    return call_proc_result(
+        PhoneNumberData, "get_user_phone_numbers",
         params=(token,),
-        fetch_all=True
+        is_aggregate=True
     )
-
-    if rows.success:
-        data = json.loads(row.data)
-        return DbResult.success_result([
-            PhoneNumberData(number)
-            for number in data
-        ])
-
-    return DbResult.error_result(rows.error.code, rows.error.message)
 
 
 def proc_get_user_addresses(token: str) -> DbResult[list[AddressData]]:
-    rows = call_proc(
-        "get_user_addresses",
+    return call_proc_result(
+        AddressData, "get_user_addresses",
         params=(token,),
-        fetch_all=True
+        is_aggregate=True
     )
-
-    if rows.success:
-        data = json.loads(row.data)
-        return DbResult.success_result([
-            AddressData(number)
-            for number in data
-        ])
-
-    return DbResult.error_result(rows.error.code, rows.error.message)
 
 
 def proc_get_type_values(table: str) -> list[DictRow]:
@@ -268,9 +280,9 @@ def proc_create_business(
     vat_no: str,
     utr_no: str,
     num_employees: int
-) -> str:
-    return call_proc(
-        "create_business",
+) -> DbResult:
+    return call_proc_result(
+        EmptyData, "create_business",
         params=(token, business_name, crn_no, vat_no, utr_no, num_employees)
     )
 
@@ -280,15 +292,18 @@ def proc_add_business_resource(
     crn_no: str,
     resource_name: str,
     quantity: int
-) -> str:
-    return call_proc(
-        "add_business_resource",
+) -> DbResult:
+    return call_proc_result(
+        EmptyData, "add_business_resource",
         params=(token, crn_no, resource_name, quantity)
     )
 
 
-def proc_get_business_staff_role(token: str, crn_no: str) -> DictRow:
-    return call_proc(
-        "get_business_staff_role",
+def proc_get_business_staff_role(
+    token: str,
+    crn_no: str
+) -> DbResult[BusinessStaffRole]:
+    return call_proc_result(
+        BusinessStaffRole, "get_business_staff_role",
         params=(token, crn_no)
     )

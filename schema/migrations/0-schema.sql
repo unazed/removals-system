@@ -29,6 +29,7 @@ BEGIN;
   \i 'schema/migrations/proc/forgot_password.sql'
   \i 'schema/migrations/proc/phone_numbers.sql'
   \i 'schema/migrations/proc/types.sql'
+  \i 'schema/migrations/proc/businesses.sql'
 COMMIT;
 
 BEGIN;

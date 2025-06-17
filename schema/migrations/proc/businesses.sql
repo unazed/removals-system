@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION create_business(
     p_utr_no TEXT,
     p_num_employees INTEGER
 )
-RETURNS TEXT AS $$
+RETURNS result_t AS $$
 DECLARE
     user_session JSON;
     stored_business_id INTEGER;
@@ -14,7 +14,7 @@ BEGIN
     user_session := decode_token(p_token);
 
     IF user_session IS NULL THEN
-        RETURN 'Invalid session token';
+        RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
     END IF;
 
     INSERT INTO Businesses(business_name, crn_no, vat_no, utr_no, num_employees)
@@ -22,9 +22,13 @@ BEGIN
     RETURNING business_id INTO stored_business_id;
 
     INSERT INTO BusinessStaff(business_id, user_id, user_role)
-    VALUES (stored_business_id, user_session->>'user_id', 'executive');
+    VALUES (
+        stored_business_id,
+        (user_session->>'user_id')::INTEGER,
+        'executive'
+    );
 
-    RETURN '';
+    RETURN make_success_result();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -39,15 +43,12 @@ CREATE OR REPLACE FUNCTION utils.get_business_staff_role(
     p_user_id INTEGER,
     p_business_id INTEGER
 )
-RETURNS StaffValidationResultT AS $$
+RETURNS result_t AS $$
 DECLARE
-    result StaffValidationResultT;
     found_role TEXT;
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Users WHERE user_id = p_user_id) THEN
-        result.is_valid := FALSE;
-        result.error_message := 'User does not exist';
-        RETURN result;
+        RAISE EXCEPTION 'Invalid user ID';
     END IF;
 
     IF NOT EXISTS (
@@ -55,9 +56,7 @@ BEGIN
         FROM Businesses
         WHERE business_id = p_business_id
     ) THEN
-        result.is_valid := FALSE;
-        result.error_message := 'Invalid business identifier';
-        RETURN result;
+        RAISE EXCEPTION 'Invalid business ID';
     END IF;
 
     SELECT user_role INTO found_role
@@ -66,15 +65,15 @@ BEGIN
     AND business_id = p_business_id;
 
     IF NOT FOUND THEN
-        result.is_valid := FALSE;
-        result.error_message := 'User is not staff of this business';
-        RETURN result;
+        RETURN make_error_result(
+            'INSUFFICIENT_PERMISSIONS',
+            'User is not staff of this business'
+        );
     END IF;
 
-    result.is_valid := TRUE;
-    result.user_role := found_role;
-    result.error_message := NULL;
-    RETURN result;
+    RETURN make_success_result(jsonb_build_object(
+        'role', found_role
+    ));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -82,23 +81,23 @@ CREATE OR REPLACE FUNCTION get_business_staff_role(
     p_token TEXT,
     p_crn_no TEXT
 )
-RETURNS RECORD AS $$
+RETURNS result_t AS $$
 DECLARE
     user_session JSON;
     stored_business_id INTEGER;
-    stored_staff_role StaffValidationResultT;
-    result RECORD;
+    stored_staff_role result_t;
 BEGIN
     user_session := decode_token(p_token);
     IF user_session IS NULL THEN
-        SELECT 'Invalid session token', NULL::TEXT INTO result;
-        RETURN result;
+        RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
     END IF;
 
     stored_business_id := utils.get_business_id_by_crn(p_crn_no);
     IF stored_business_id IS NULL THEN
-        SELECT 'Invalid business identifier', NULL::TEXT INTO result;
-        RETURN result;
+        RETURN make_error_result(
+            'INVALID_BUSINESS',
+            'Invalid business identifier (1)'
+        );
     END IF;
 
     stored_staff_role := utils.get_business_staff_role(
@@ -106,13 +105,13 @@ BEGIN
         stored_business_id
     );
 
-    IF NOT stored_staff_role.is_valid THEN
-        SELECT stored_staff_role.error_message, NULL::TEXT INTO result;
-        RETURN result;
+    IF NOT stored_staff_role.success THEN
+        RETURN stored_staff_role;
     END IF;
 
-    SELECT ''::TEXT, stored_staff_role.user_role INTO result;
-    RETURN result;
+    RETURN make_success_result(jsonb_build_object(
+        'role', stored_staff_role.data->>'role'
+    ));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -122,19 +121,22 @@ CREATE OR REPLACE FUNCTION add_business_resource(
     p_resource_name TEXT,
     p_quantity INTEGER
 )
-RETURNS TEXT AS $$
+RETURNS result_t AS $$
 DECLARE
-    staff_check RECORD;
+    stored_staff_role result_t;
     stored_business_id INTEGER;
 BEGIN
-    staff_check := get_business_staff_role(p_token, p_crn_no);
+    stored_staff_role := get_business_staff_role(p_token, p_crn_no);
     
-    IF staff_check.f1 = '' THEN
-        RETURN staff_check.f1;
+    IF NOT stored_staff_role.success THEN
+        RETURN stored_staff_role;
     END IF;
     
-    IF staff_check.f2 <> 'executive' THEN
-        RETURN 'Insufficient permissions';
+    IF stored_staff_role.data->>'role' <> 'executive' THEN
+        RETURN make_error_result(
+            'INSUFFICIENT_PERMISSIONS',
+            'Non-executive staff cannot create business resources'
+        );
     END IF;
 
     stored_business_id := utils.get_business_id_by_crn(p_crn_no);
@@ -144,6 +146,6 @@ BEGIN
     ON CONFLICT (business_id, resource_name) 
     DO UPDATE SET quantity = BusinessResources.quantity + EXCLUDED.quantity;
 
-    RETURN '';
+    RETURN make_success_result();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt, Signal, QObject
 
 from ..models.user import User, register_user
+from ..models.business import Business 
 from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number, extract_phone_components
 from ..models.db import proc_get_length_constraint
@@ -77,16 +78,29 @@ class RoleSelectionController(QObject):
     ) -> None:
         if not form.is_valid_fields():
             return
+        form_data = form.get_data()
         service_provider_details: "Form" = self.view.stack.widget(1).body
         user = self.register_user_from_detail_form(
             service_provider_details,
             "service-provider"
         )
+        business = Business.create_for_user(
+            user.token,
+            business_name=form_data['business-name'],
+            crn_no=form_data['crn'],
+            vat_no=form_data['vat-number'],
+            utr_no=form_data['utr-number'],
+            num_employees=form_data['nr-employees']
+        )
+        print(f"Created business: {form_data['business-name']}")
+        for qty_rsrc, rsrc_name in form_data['items']:
+            print(f"Added resource: {qty_rsrc}x {rsrc_name}")
+            business.add_resource(qty_rsrc, rsrc_name)
         self.view.stack.setCurrentIndex(3)
 
     def register_user_from_detail_form(
         self,
-        detail_form: "Form",
+        form: "Form",
         role: str
     ) -> User:
         user_details = form.get_data()
@@ -96,7 +110,7 @@ class RoleSelectionController(QObject):
             "email": self.user_auth['email'],
             "password": self.user_auth['password'],
             "dob": user_details['dob'].toPython(),
-            "role": "customer"
+            "role": role
         })
         user.create_address(
             user_details['city'], user_details['county'],
@@ -107,7 +121,7 @@ class RoleSelectionController(QObject):
             user_details['home-telephone']
         )
         user.create_phone_number(*number_info)
-        if (work_number := user_details.get('work-telephone')) is not None:
+        if (work_number := user_details.get('work-telephone')):
             number_info = extract_phone_components(work_number)
             user.create_phone_number(*number_info, phone_type="work")
         return user
@@ -116,8 +130,7 @@ class RoleSelectionController(QObject):
         if not form.is_valid_fields():
             return
         self.on_customer_submit.emit(
-            self.register_user_from_detail_form(form),
-            "customer"
+            self.register_user_from_detail_form(form, "customer")
         )
 
     def register_link_labels(self, *forms: "RoleSelectionForm") -> None:
@@ -127,6 +140,7 @@ class RoleSelectionController(QObject):
                 label.linkActivated.connect(self.handle_back_label)
 
     def register_validation_if_exists(
+        self,
         form: "RoleSelectionForm",
         widget_name: str,
         function: callable

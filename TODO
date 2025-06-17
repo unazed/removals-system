@@ -1,5 +1,0 @@
-Hey, good morning.
-
-Take a look at `models/db.py`, the database returns a `result_t` for all
-validated procedures, but when there's an error there's additional fields that
-need to be interpreted

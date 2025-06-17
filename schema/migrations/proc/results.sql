@@ -1,7 +1,6 @@
 CREATE TYPE error_t AS (
     code TEXT,
-    message TEXT,
-    details JSONB
+    message TEXT
 );
 
 CREATE TYPE result_t AS (
@@ -19,14 +18,13 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION make_error_result(
     error_code TEXT,
-    error_message TEXT,
-    error_details JSONB DEFAULT NULL
+    error_message TEXT
 )
 RETURNS result_t AS $$
 DECLARE
     error_obj error_t;
 BEGIN
-    error_obj := ROW(error_code, error_message, error_details)::error_t;
+    error_obj := ROW(error_code, error_message)::error_t;
     RETURN ROW(FALSE, error_obj, NULL)::result_t;
 END;
 $$ LANGUAGE plpgsql;
