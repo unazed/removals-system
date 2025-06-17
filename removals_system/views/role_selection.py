@@ -170,7 +170,7 @@ class RoleSelectionView(QWidget):
 
         add_field_row(
             left_layout,
-            LineEdit("Business name", name="business-name"),
+            LineEdit("Business name", name="business-name", max_length=120),
         )
         add_field_row(
             left_layout,
@@ -178,16 +178,19 @@ class RoleSelectionView(QWidget):
         )
         add_field_row(
             left_layout,
-            LineEdit("Company registration number", name="crn"),
+            LineEdit("Company registration number", name="crn", max_length=8),
         )
         add_field_row(
             left_layout,
-            LineEdit("VAT number (if applicable)", name="vat-number")\
-                .set_optional(True),
+            LineEdit(
+                "VAT number (if applicable)",
+                name="vat-number",
+                max_length=11
+            ).set_optional(True),
         )
         add_field_row(
             left_layout,
-            LineEdit("UTR (if applicable)", name="utr-number")\
+            LineEdit("UTR (if applicable)", name="utr-number", max_length=10)\
                 .set_optional(True),
         )
 

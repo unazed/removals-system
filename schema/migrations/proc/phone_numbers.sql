@@ -1,8 +1,10 @@
 CREATE OR REPLACE FUNCTION create_user_phone_number(
-    p_token TEXT, p_extension TEXT, p_number TEXT,
+    p_token TEXT,
+    p_extension TEXT,
+    p_number TEXT,
     p_phone_type TEXT DEFAULT 'home'
 )
-RETURNS TEXT AS $$
+RETURNS result_t AS $$
 DECLARE
   user_session JSON;
   new_phone_id INTEGER;
@@ -10,7 +12,7 @@ BEGIN
   user_session := decode_token(p_token);
 
   IF user_session IS NULL THEN
-    RETURN 'Invalid session token';
+    RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
   END IF;
 
   INSERT INTO PhoneNumbers(phone_extension, phone_number)
@@ -20,36 +22,36 @@ BEGIN
   INSERT INTO UserPhoneNumbers(user_id, phone_number_id, phone_number_type)
   VALUES ((user_session->>'user_id')::INTEGER, new_phone_id, p_phone_type);
 
-  RETURN '';
+  RETURN make_success_result();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_user_phone_numbers(p_token TEXT)
-RETURNS TABLE (
-    phone_number_id   INTEGER,
-    phone_extension   TEXT,
-    phone_number      TEXT,
-    phone_number_type TEXT
-) AS $$
+RETURNS result_t AS $$
 DECLARE
     user_session JSON;
-    uid INTEGER;
+    phone_data JSONB;
 BEGIN
     user_session := decode_token(p_token);
     IF user_session IS NULL THEN
-        RETURN;
+        RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
     END IF;
 
-    uid := (user_session->>'user_id')::INTEGER;
-
-    RETURN QUERY
-    SELECT
-        pn.phone_number_id,
-        pn.phone_extension,
-        pn.phone_number,
-        upn.phone_number_type
+    SELECT COALESCE(
+        jsonb_agg(
+            jsonb_build_object(
+                'phone_number_id', pn.phone_number_id,
+                'phone_extension', pn.phone_extension,
+                'phone_number', pn.phone_number,
+                'phone_number_type', upn.phone_number_type
+            )
+        ),
+        '[]'::jsonb
+    ) INTO phone_data
     FROM UserPhoneNumbers upn
     JOIN PhoneNumbers pn ON upn.phone_number_id = pn.phone_number_id
-    WHERE upn.user_id = uid;
+    WHERE upn.user_id = (user_session->>'user_id')::INTEGER;
+
+    RETURN make_success_result(phone_data);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

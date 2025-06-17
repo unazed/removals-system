@@ -2,7 +2,8 @@ CREATE TABLE Businesses (
   business_id     INTEGER GENERATED ALWAYS AS IDENTITY,
 
   business_name   TEXT NOT NULL,
-  vat_no          TEXT UNIQUE NOT NULL,
+  crn_no          TEXT UNIQUE NOT NULL,
+  vat_no          TEXT UNIQUE,
   utr_no          TEXT UNIQUE,
   num_employees   INTEGER NOT NULL,
 
@@ -11,10 +12,36 @@ CREATE TABLE Businesses (
 
   CONSTRAINT CHK_Businesses__name_length
     CHECK (LENGTH(business_name) <= 120),
+  CONSTRAINT CHK_Businesses__nr_employees
+    CHECK (num_employees > 0),
+  CONSTRAINT CHK_Businesses__crn_length
+    CHECK (LENGTH(crn_no) = 8),
   CONSTRAINT CHK_Businesses__vat_length
     CHECK (LENGTH(vat_no) = 11),
   CONSTRAINT CHK_Businesses__utr_no
     CHECK (LENGTH(utr_no) = 10)
+);
+
+CREATE TABLE BusinessStaff (
+  business_id     INTEGER NOT NULL,
+  user_id         INTEGER NOT NULL,
+  user_role       TEXT NOT NULL,
+
+  CONSTRAINT PK_BusinessStaff
+    PRIMARY KEY (business_id, user_id),
+  
+  CONSTRAINT FK_BusinessStaff__business
+    FOREIGN KEY (business_id)
+    REFERENCES Businesses(business_id)
+    ON DELETE CASCADE,
+  CONSTRAINT FK_BusinessStaff__user
+    FOREIGN KEY (business_id)
+    REFERENCES Users(user_id)
+    ON DELETE CASCADE,
+  CONSTRAINT FK_BusinessStaff__user_role
+    FOREIGN KEY (user_role)
+    REFERENCES types.BusinessStaffRoles(staff_role)
+    ON DELETE RESTRICT
 );
 
 CREATE TABLE BusinessResources (
@@ -29,6 +56,9 @@ CREATE TABLE BusinessResources (
 
   CONSTRAINT CHK_BusinessResources__valid_quantity
     CHECK (quantity > 0),
+
+  CONSTRAINT UK_BusinessResources
+    UNIQUE (business_id, resource_name),
   
   CONSTRAINT FK_BusinessResources__business
     FOREIGN KEY (business_id)

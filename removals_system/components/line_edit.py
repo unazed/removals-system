@@ -10,12 +10,15 @@ class LineEdit(QLineEdit, StyledWidget, ValidationMixin):
         self,
         label: str = "",
         name: str | None = None,
-        *args, **kwargs
+        *args,
+        max_length: int | None = None,
+        **kwargs
     ) -> None:
         super().__init__(*args, **kwargs)
         
         self.name = name
-
+        if max_length is not None:
+            self.setMaxLength(max_length)
         self.set_validation_trigger(self.editingFinished)
         self.setup_label(label)
         self.apply_styling()

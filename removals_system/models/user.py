@@ -5,15 +5,10 @@ from ..exceptions.auth_exceptions import (
 )
 from . import db
 
+from typing import TYPE_CHECKING
 
-USER_ERROR_MAP = {
-    "Invalid city name": ValueError,
-    "Invalid county name": ValueError,
-    "Invalid country name": ValueError,
-    "Invalid session token": InvalidSessionError,
-    "Invalid email or password": InvalidCredentialsError,
-    "Email already exists": UserAlreadyExistsError
-}
+if TYPE_CHECKING:
+    from .businesses import Business
 
 
 class User:
@@ -27,19 +22,10 @@ class User:
         if token_role_pair is not None:
             self.token, self.role = token_role_pair
             return
-        error, *token_role_pair = db.proc_login_user(email, password)
-        self.maybe_raise_exception(error)
+        result = db.proc_login_user(email, password)
+        print(result)
         self.token, self.role = token_role_pair
-
-    @staticmethod
-    def maybe_raise_exception(error: str) -> None:
-        if not error:
-            return
-        try:
-            which_error = USER_ERROR_MAP[error]
-            raise which_error(error)
-        except KeyError:
-            raise Exception(f"Unhandled exception: {error!r}")
+        self.assigned_business: "Business | None" = None
 
     def create_address(
         self,
@@ -51,7 +37,6 @@ class User:
             self.token, line_1, line_2, line_3,
             city, county, country, post_code, address_type
         )
-        self.maybe_raise_exception(error)
 
     def create_phone_number(
         self,
@@ -61,21 +46,17 @@ class User:
         error = db.proc_create_user_phone_number(
             self.token, extension, number, phone_type
         )
-        self.maybe_raise_exception(error)
 
     def get_phone_numbers(self):
         numbers = db.proc_get_user_phone_numbers(self.token)
-        if numbers is None:
-            self.maybe_raise_exception(SQL_ERROR_MAP['invalid-session'])
-            return
+
         return numbers
 
     def get_addresses(self):
         addresses = db.proc_get_user_phone_numbers(self.token)
-        if addresses is None:
-            self.maybe_raise_exception(SQL_ERROR_MAP['invalid-session'])
-            return
+
         return addresses
+
 
     @classmethod
     def from_token(cls: type["User"], token: str, role: str) -> "User":

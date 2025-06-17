@@ -14,8 +14,6 @@ CREATE TABLE Users (
   user_status   TEXT,
   is_disabled   BOOLEAN DEFAULT FALSE,
 
-  business_id   INTEGER,
-
   CONSTRAINT PK_Users
     PRIMARY KEY (user_id),
   
@@ -31,10 +29,6 @@ CREATE TABLE Users (
   CONSTRAINT FK_Users__user_status
     FOREIGN KEY (user_status)
     REFERENCES types.UserStatus(user_status)
-    ON DELETE SET NULL,
-  CONSTRAINT FK_Users__business
-    FOREIGN KEY (business_id)
-    REFERENCES Businesses(business_id)
     ON DELETE SET NULL
 );
 

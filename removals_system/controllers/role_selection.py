@@ -22,10 +22,10 @@ class RoleSelectionController(QObject):
     on_customer_submit = Signal(User)
     on_service_provider_submit = Signal()
 
-    def __init__(self, view: "RoleSelectionView", user_details: dict) -> None:
+    def __init__(self, view: "RoleSelectionView", user_auth: dict) -> None:
         super().__init__()
         self.view = view
-        self.user_details = user_details
+        self.user_auth = user_auth
 
         self.card_callback_map = {
             "customer": self.customer_card_selected,
@@ -50,7 +50,6 @@ class RoleSelectionController(QObject):
 
         self.register_details_connections(details)
         self.register_business_connections(business_info)
-        
         self.register_link_labels(details, business_info, final)
 
         details.body.on_submit(self.service_provider_submit_details)
@@ -66,7 +65,7 @@ class RoleSelectionController(QObject):
 
     def service_provider_submit_details(
         self,
-        form: "RoleSelectionForm"
+        form: "Form"
     ) -> None:
         if not form.is_valid_fields():
             return
@@ -74,34 +73,52 @@ class RoleSelectionController(QObject):
     
     def service_provider_submit_business_details(
         self,
-        form: "RoleSelectionForm"
+        form: "Form"
     ) -> None:
         if not form.is_valid_fields():
             return
+        service_provider_details: "Form" = self.view.stack.widget(1).body
+        user = self.register_user_from_detail_form(
+            service_provider_details,
+            "service-provider"
+        )
         self.view.stack.setCurrentIndex(3)
+
+    def register_user_from_detail_form(
+        self,
+        detail_form: "Form",
+        role: str
+    ) -> User:
+        user_details = form.get_data()
+        user = register_user(**{
+            "forename": self.user_auth['forename'],
+            "surname": self.user_auth['surname'],
+            "email": self.user_auth['email'],
+            "password": self.user_auth['password'],
+            "dob": user_details['dob'].toPython(),
+            "role": "customer"
+        })
+        user.create_address(
+            user_details['city'], user_details['county'],
+            user_details['country'], user_details['post-code'],
+            user_details['address-1'], user_details['address-2']
+        )
+        number_info = extract_phone_components(
+            user_details['home-telephone']
+        )
+        user.create_phone_number(*number_info)
+        if (work_number := user_details.get('work-telephone')) is not None:
+            number_info = extract_phone_components(work_number)
+            user.create_phone_number(*number_info, phone_type="work")
+        return user
 
     def customer_submit_details(self, form: "Form") -> None:
         if not form.is_valid_fields():
             return
-        extra_user_info = form.get_data()
-        user = register_user(**{
-            "forename": self.user_details['forename'],
-            "surname": self.user_details['surname'],
-            "email": self.user_details['email'],
-            "password": self.user_details['password'],
-            "dob": extra_user_info['dob'].toPython(),
-            "role": "customer"
-        })
-        user.create_address(
-            extra_user_info['city'], extra_user_info['county'],
-            extra_user_info['country'], extra_user_info['post-code'],
-            extra_user_info['address-1'], extra_user_info['address-2']
+        self.on_customer_submit.emit(
+            self.register_user_from_detail_form(form),
+            "customer"
         )
-        ext, number = extract_phone_components(
-            extra_user_info['home-telephone']
-        )
-        user.create_phone_number(ext, number)
-        self.on_customer_submit.emit(user)
 
     def register_link_labels(self, *forms: "RoleSelectionForm") -> None:
         for form in forms:
@@ -109,19 +126,37 @@ class RoleSelectionController(QObject):
             if label is not None:
                 label.linkActivated.connect(self.handle_back_label)
 
+    def register_validation_if_exists(
+        form: "RoleSelectionForm",
+        widget_name: str,
+        function: callable
+    ) -> None:
+        widget = form.body.get_widget(widget_name)
+        if widget is not None:
+            widget.register_validation_func(function)
+
     def register_business_connections(self, form: "RoleSelectionForm") -> None:
         item_input: "ItemInput" = form.body.get_widget("items")
         item_input.add_combo_items(*get_type_values("BusinessResourceTypes"))
-    
-    def register_details_connections(self, form: "RoleSelectionForm") -> None:
-        def register_validation_if_exists(
-            widget_name: str,
-            function: callable
-        ) -> None:
-            widget = form.body.get_widget(widget_name)
-            if widget is not None:
-                widget.register_validation_func(function)
 
+        self.register_validation_if_exists(
+            form, "nr-employees",
+            lambda n: n.isdecimal() and int(n) > 0
+        )
+        self.register_validation_if_exists(
+            form, "crn",
+            lambda crn: len(crn) == 8
+        )
+        self.register_validation_if_exists(
+            form, "vat-number",
+            lambda vat: len(vat) == 11
+        )
+        self.register_validation_if_exists(
+            form, "utr-number",
+            lambda utr: len(utr) == 10
+        )
+
+    def register_details_connections(self, form: "RoleSelectionForm") -> None:
         country_combo: "ComboBox" = form.body.get_widget("country")
         if country_combo is not None:
             for country_code, country_name in get_countries():
@@ -139,9 +174,18 @@ class RoleSelectionController(QObject):
                 lambda to: self.on_county_change(form, to)
             )
 
-        register_validation_if_exists("dob", validate_age_over_18)
-        register_validation_if_exists("home-telephone", is_valid_number)
-        register_validation_if_exists("work-telephone", is_valid_number)
+        self.register_validation_if_exists(
+            form, "dob",
+            validate_age_over_18
+        )
+        self.register_validation_if_exists(
+            form, "home-telephone",
+            is_valid_number
+        )
+        self.register_validation_if_exists(
+            form, "work-telephone",
+            is_valid_number
+        )
 
         post_code: "LineEdit" = form.body.get_widget("post-code")
         if post_code is not None:

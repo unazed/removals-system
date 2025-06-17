@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION user_update()
-RETURNS trigger AS $$
+RETURNS TRIGGER AS $$
 BEGIN
   IF OLD.created_at IS DISTINCT FROM NEW.created_at THEN
     RAISE EXCEPTION 'Cannot modify created_at timestamp';
@@ -8,6 +8,10 @@ BEGIN
   IF OLD.email IS DISTINCT FROM NEW.email
       AND NOT is_valid_email(NEW.EMAIL) THEN
     RAISE EXCEPTION 'Newly updated email is invalid';
+  END IF;
+
+  IF OLD.user_status = 'deleted' THEN
+    RAISE EXCEPTION 'Cannot modify a deleted user';
   END IF;
   
   NEW.updated_at = CURRENT_TIMESTAMP;
@@ -33,6 +37,14 @@ BEGIN
   END IF;
 
   NEW.email := normalized_email;
+
+  IF NEW.user_role = 'service-provider' THEN
+    NEW.user_status = 'pending-approval';
+  ELSIF NEW.user_role = 'customer' THEN
+    NEW.user_status = 'active';
+  ELSE
+    RAISE EXCEPTION 'Unhandled user role';
+  END IF;
 
   RETURN NEW;
 END;

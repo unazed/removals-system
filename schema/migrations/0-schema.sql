@@ -5,8 +5,8 @@ BEGIN;
   \i 'schema/types.sql'
   \i 'schema/phone-numbers.sql'
   \i 'schema/addresses.sql'
-  \i 'schema/businesses.sql'
   \i 'schema/users.sql'
+  \i 'schema/businesses.sql'
   \i 'schema/items.sql'
   \i 'schema/orders.sql'
 COMMIT;
@@ -20,6 +20,7 @@ COMMIT;
 
 BEGIN;
   \i 'schema/migrations/proc/get_envvars.sql'
+  \i 'schema/migrations/proc/results.sql'
   \i 'schema/migrations/proc/login.sql'
   \i 'schema/migrations/proc/register.sql'
   \i 'schema/migrations/proc/email.sql'

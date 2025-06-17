@@ -1,3 +1,17 @@
+CREATE TABLE types.BusinessStaffRoles (
+  staff_role        TEXT NOT NULL,
+
+  CONSTRAINT PK_BusinessStaffRoles
+    PRIMARY KEY (staff_role),
+
+  CONSTRAINT CHK_BusinessStaffRoles__length
+    CHECK (LENGTH(staff_role) <= 15),
+  CONSTRAINT CHK_BusinessStaffRoles__valid
+    CHECK (staff_role IN (
+      'executive', 'employee'
+    ))
+);
+
 CREATE TABLE types.AddressTypes (
   address_type      TEXT NOT NULL,
 

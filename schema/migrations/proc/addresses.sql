@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION create_user_address(
   p_city TEXT, p_county TEXT, p_country TEXT, p_post_code TEXT,
   p_address_type TEXT DEFAULT 'home'
 )
-RETURNS TEXT AS $$
+RETURNS result_t AS $$
 DECLARE
   user_session JSON;
   new_address_id INTEGER;
@@ -39,7 +39,7 @@ BEGIN
   user_session := decode_token(p_token);
 
   IF user_session IS NULL THEN
-    RETURN 'Invalid session token';
+    RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
   END IF;
 
   SELECT country_id INTO stored_country_id
@@ -47,7 +47,10 @@ BEGIN
   WHERE country_name = p_country;
 
   IF NOT FOUND THEN
-    RETURN 'Invalid country name';
+    RETURN make_error_result(
+      'INVALID_COUNTRY',
+      FORMAT('Invalid country: %', p_country)
+    );
   END IF;
 
   SELECT county_id INTO stored_county_id
@@ -55,7 +58,10 @@ BEGIN
   WHERE county_name = p_county;
 
   IF NOT FOUND THEN
-    RETURN 'Invalid county name';
+    RETURN make_error_result(
+      'INVALID_COUNTY',
+      FORMAT('Invalid county: %', p_county)
+    );
   END IF;
 
   SELECT city_id INTO stored_city_id
@@ -63,62 +69,66 @@ BEGIN
   WHERE city_name = p_city;
 
   IF NOT FOUND THEN
-    RETURN 'Invalid city name';
+    RETURN make_error_result(
+      'INVALID_CITY',
+      FORMAT('Invalid city: %', p_city)
+    );
   END IF;
 
-  INSERT INTO Addresses(line_1, line_2, line_3, city_id, county_id, country_id,
-                        post_code)
-  VALUES (p_line_1, p_line_2, p_line_3, stored_city_id, stored_county_id,
-          stored_country_id, p_post_code)
+  INSERT INTO Addresses(
+    line_1, line_2, line_3,
+    city_id, county_id, country_id,
+    post_code
+  )
+  VALUES (
+    p_line_1, p_line_2, p_line_3,
+    stored_city_id, stored_county_id, stored_country_id,
+    p_post_code
+  )
   RETURNING address_id INTO new_address_id;
 
   INSERT INTO UserAddresses(user_id, address_id, address_type)
   VALUES ((user_session->>'user_id')::INTEGER, new_address_id, p_address_type);
 
-  RETURN '';
+  RETURN make_success_result();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_user_addresses(p_token TEXT)
-RETURNS TABLE (
-    address_id     INTEGER,
-    line_1         TEXT,
-    line_2         TEXT,
-    line_3         TEXT,
-    post_code      TEXT,
-    address_type   TEXT,
-    city_name      TEXT,
-    county_name    TEXT,
-    country_name   TEXT
-) AS $$
+RETURNS result_t AS $$
 DECLARE
     user_session JSON;
-    uid INTEGER;
+    address_data JSONB;
 BEGIN
     user_session := decode_token(p_token);
 
     IF user_session IS NULL THEN
-        RETURN;
+        RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
     END IF;
 
-    uid := (user_session->>'user_id')::INTEGER;
-
-    RETURN QUERY
-    SELECT
-        Addr.address_id,
-        Addr.line_1,
-        Addr.line_2,
-        Addr.line_3,
-        Addr.post_code,
-        UA.address_type,
-        C.city_name,
-        Cty.county_name,
-        Cntry.country_name
+    SELECT COALESCE(
+        jsonb_agg(
+            jsonb_build_object(
+                'address_id', Addr.address_id,
+                'line_1', Addr.line_1,
+                'line_2', Addr.line_2,
+                'line_3', Addr.line_3,
+                'post_code', Addr.post_code,
+                'address_type', UA.address_type,
+                'city_name', C.city_name,
+                'county_name', Cty.county_name,
+                'country_name', Cntry.country_name
+            )
+        ),
+        '[]'::jsonb
+    ) INTO address_data
     FROM UserAddresses UA
-    JOIN Addresses Addr ON UA.address_id = Addr.address_id
-    JOIN Cities C       ON Addr.city_id = C.city_id
-    JOIN Counties Cty   ON Addr.county_id = Cty.county_id
+    JOIN Addresses Addr  ON UA.address_id = Addr.address_id
+    JOIN Cities C        ON Addr.city_id = C.city_id
+    JOIN Counties Cty    ON Addr.county_id = Cty.county_id
     JOIN Countries Cntry ON Addr.country_id = Cntry.country_id
-    WHERE UA.user_id = uid;
+    WHERE UA.user_id = (user_session->>'user_id')::INTEGER;
+
+    RETURN make_success_result(address_data);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

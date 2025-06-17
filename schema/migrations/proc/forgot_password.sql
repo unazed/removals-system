@@ -1,5 +1,9 @@
-CREATE OR REPLACE FUNCTION forgot_password(p_code TEXT, p_email TEXT, p_password TEXT)
-RETURNS TABLE(msg TEXT, token TEXT, role TEXT) AS $$
+CREATE OR REPLACE FUNCTION forgot_password(
+    p_code TEXT,
+    p_email TEXT,
+    p_password TEXT
+)
+RETURNS result_t AS $$
 DECLARE
     stored_user_id INTEGER;
     stored_user_role TEXT;
@@ -13,23 +17,19 @@ BEGIN
     WHERE email = normalized_email;
 
     IF NOT FOUND THEN
-        RETURN QUERY
-        SELECT 'Email does not exist', NULL, NULL;
+        RETURN make_error_result('INVALID_CREDENTIALS', 'Invalid email');
     END IF;
 
     RAISE NOTICE 'Pretending to verify code: %', p_code;
 
     IF p_code IS DISTINCT FROM '1234' THEN
-        RETURN QUERY
-        SELECT 'Invalid code', NULL, NULL;
+        RETURN make_error_result('INVALID_CODE', 'Invalid authentication code');
     END IF;
 
     UPDATE Users
     SET password_hash = crypt(p_password, gen_salt('bf', 8))
     WHERE email = normalized_email;
 
-    RETURN QUERY
-    SELECT L.msg, L.token, L.role
-    FROM login_user(normalized_email, p_password) AS L;
+    RETURN login_user(normalized_email, p_password);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

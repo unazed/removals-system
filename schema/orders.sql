@@ -1,7 +1,7 @@
 CREATE TABLE Orders (
   order_id          INTEGER GENERATED ALWAYS AS IDENTITY,
   created_by        INTEGER NOT NULL,
-  created_for       INTEGER NOT NULL,
+  assigned_to       INTEGER,
 
   pickup_address    INTEGER NOT NULL,
   pickup_date       TIMESTAMP NOT NULL,
@@ -20,6 +20,10 @@ CREATE TABLE Orders (
     FOREIGN KEY (created_by)
     REFERENCES Users(user_id)
     ON DELETE RESTRICT,
+  CONSTRAINT FK_Orders__assigned_to
+    FOREIGN KEY (assigned_to)
+    REFERENCES Businesses(business_id)
+    ON DELETE RESTRICT,
   CONSTRAINT FK_Orders__pickup_address
     FOREIGN KEY (pickup_address)
     REFERENCES Addresses(address_id)
@@ -27,10 +31,6 @@ CREATE TABLE Orders (
   CONSTRAINT FK_Orders__delivery_address
     FOREIGN KEY (delivery_address)
     REFERENCES Addresses(address_id)
-    ON DELETE RESTRICT,
-  CONSTRAINT FK_Orders__created_for
-    FOREIGN KEY (created_for)
-    REFERENCES Users(user_id)
     ON DELETE RESTRICT
 );
 

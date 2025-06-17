@@ -7,9 +7,9 @@ BEGIN
     reg_token := register_user(
         'Alice',
         'Smith',
-        'alice@example.com',
+        'asd@asd.asd',
         DATE '1995-04-15',
-        'supersecret123',
+        'asd',
         'customer'
     );
 

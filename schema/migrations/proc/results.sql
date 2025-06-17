@@ -1,0 +1,32 @@
+CREATE TYPE error_t AS (
+    code TEXT,
+    message TEXT,
+    details JSONB
+);
+
+CREATE TYPE result_t AS (
+    success BOOLEAN,
+    error error_t,
+    data JSONB
+);
+
+CREATE OR REPLACE FUNCTION make_success_result(data JSONB DEFAULT NULL)
+RETURNS result_t AS $$
+BEGIN
+    RETURN ROW(TRUE, NULL, data)::result_t;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION make_error_result(
+    error_code TEXT,
+    error_message TEXT,
+    error_details JSONB DEFAULT NULL
+)
+RETURNS result_t AS $$
+DECLARE
+    error_obj error_t;
+BEGIN
+    error_obj := ROW(error_code, error_message, error_details)::error_t;
+    RETURN ROW(FALSE, error_obj, NULL)::result_t;
+END;
+$$ LANGUAGE plpgsql;
