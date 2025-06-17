@@ -2,6 +2,8 @@ BEGIN;
   CREATE EXTENSION IF NOT EXISTS pgcrypto;
   CREATE EXTENSION IF NOT EXISTS pgjwt;
 
+  CREATE SCHEMA utils;
+
   \i 'schema/types.sql'
   \i 'schema/phone-numbers.sql'
   \i 'schema/addresses.sql'
@@ -30,6 +32,7 @@ BEGIN;
   \i 'schema/migrations/proc/phone_numbers.sql'
   \i 'schema/migrations/proc/types.sql'
   \i 'schema/migrations/proc/businesses.sql'
+  \i 'schema/migrations/proc/orders.sql'
 COMMIT;
 
 BEGIN;

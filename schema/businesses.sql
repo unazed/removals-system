@@ -24,7 +24,7 @@ CREATE TABLE Businesses (
 
 CREATE TABLE BusinessStaff (
   business_id     INTEGER NOT NULL,
-  user_id         INTEGER NOT NULL,
+  user_id         INTEGER UNIQUE NOT NULL,
   user_role       TEXT NOT NULL,
 
   CONSTRAINT PK_BusinessStaff
@@ -35,7 +35,7 @@ CREATE TABLE BusinessStaff (
     REFERENCES Businesses(business_id)
     ON DELETE CASCADE,
   CONSTRAINT FK_BusinessStaff__user
-    FOREIGN KEY (business_id)
+    FOREIGN KEY (user_id)
     REFERENCES Users(user_id)
     ON DELETE CASCADE,
   CONSTRAINT FK_BusinessStaff__user_role

@@ -1,18 +1,25 @@
 CREATE TABLE Auctions (
   auction_id        INTEGER GENERATED ALWAYS AS IDENTITY,
-  min_bid           INTEGER
+  min_bid           DECIMAL(10, 2) NOT NULL,
+  winning_bidder_id INTEGER,
+  winning_bid_amt   DECIMAL(10, 2),
+  is_closed         BOOLEAN DEFAULT FALSE,
 
   CONSTRAINT PK_Auctions
     PRIMARY KEY (auction_id),
 
   CONSTRAINT CHK_Auctions__min_bid
-    CHECK (min_bid > 0)
+    CHECK (min_bid > 0),
+
+  CONSTRAINT FK_Auctions__winning_bidder
+    FOREIGN KEY (winning_bidder_id)
+    REFERENCES Users(user_id)
+    ON DELETE SET NULL
 );
 
 CREATE TABLE Orders (
   order_id          INTEGER GENERATED ALWAYS AS IDENTITY,
   created_by        INTEGER NOT NULL,
-  assigned_to       INTEGER,
 
   pickup_address    INTEGER NOT NULL,
   pickup_date       TIMESTAMP NOT NULL,
@@ -32,10 +39,6 @@ CREATE TABLE Orders (
   CONSTRAINT FK_Orders__created_by
     FOREIGN KEY (created_by)
     REFERENCES Users(user_id)
-    ON DELETE RESTRICT,
-  CONSTRAINT FK_Orders__assigned_to
-    FOREIGN KEY (assigned_to)
-    REFERENCES Businesses(business_id)
     ON DELETE RESTRICT,
   CONSTRAINT FK_Orders__pickup_address
     FOREIGN KEY (pickup_address)
