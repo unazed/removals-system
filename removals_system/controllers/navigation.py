@@ -25,14 +25,14 @@ class NavigationController(QMainWindow):
                 "class_name": "AuthenticationView",
                 "class": None,
                 "instance": None,
-                "reusable": True
+                "reusable": False
             },
             "role_selection": {
                 "module_path": "..views",
                 "class_name": "RoleSelectionView", 
                 "class": None,
                 "instance": None,
-                "reusable": True
+                "reusable": False
             },
             "dashboard": {
                 "module_path": "..views",

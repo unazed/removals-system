@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Signal, QObject
 
 from ..models.user import User, register_user
-from ..models.business import Business 
+from ..models.business import Business, exists_business
 from ..models.addresses import get_countries, get_counties, get_cities
 from ..models.telephone import is_valid_number, extract_phone_components
 from ..models.db import proc_get_length_constraint
@@ -92,9 +92,7 @@ class RoleSelectionController(QObject):
             utr_no=form_data['utr-number'],
             num_employees=form_data['nr-employees']
         )
-        print(f"Created business: {form_data['business-name']}")
         for qty_rsrc, rsrc_name in form_data['items']:
-            print(f"Added resource: {qty_rsrc}x {rsrc_name}")
             business.add_resource(qty_rsrc, rsrc_name)
         self.view.stack.setCurrentIndex(3)
 
@@ -159,15 +157,15 @@ class RoleSelectionController(QObject):
         )
         self.register_validation_if_exists(
             form, "crn",
-            lambda crn: len(crn) == 8
+            lambda crn: len(crn) == 8 and not exists_business(crn=crn)
         )
         self.register_validation_if_exists(
             form, "vat-number",
-            lambda vat: len(vat) == 11
+            lambda vat: len(vat) == 11 and not exists_business(vat=vat)
         )
         self.register_validation_if_exists(
             form, "utr-number",
-            lambda utr: len(utr) == 10
+            lambda utr: len(utr) == 10 and not exists_business(utr=utr)
         )
 
     def register_details_connections(self, form: "RoleSelectionForm") -> None:

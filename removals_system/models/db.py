@@ -165,7 +165,19 @@ def proc_is_valid_email(email: str) -> bool:
 
 def proc_exists_email(email: str) -> bool:
     return call_proc("exists_email", params=(email,))[0]
-    
+
+
+def proc_exists_business_crn(crn: str) -> bool:
+    return call_proc("exists_business_crn", params=(crn,))[0]
+
+
+def proc_exists_business_vat(vat: str) -> bool:
+    return call_proc("exists_business_vat", params=(vat,))[0]
+
+
+def proc_exists_business_utr(utr: str) -> bool:
+    return call_proc("exists_business_utr", params=(utr,))[0]
+
 
 def proc_get_countries() -> list[str]:
     return call_proc(

@@ -1,4 +1,6 @@
-from typing import Callable, TypeAlias
+from typing import (
+    Callable, TypeAlias, Self
+)
 
 
 ValidationFnT: TypeAlias = Callable[[object], bool]
@@ -9,15 +11,15 @@ class ValidationMixin:
         self._is_optional = getattr(self, "_is_optional", False)
         return self._is_optional
    
-    def set_optional(self, to: bool) -> None:
+    def set_optional(self, to: bool) -> Self:
         self._is_optional = to
         return self
 
-    def set_validation_trigger(self, fn) -> None:
+    def set_validation_trigger(self, fn) -> Self:
         self._validation_trigger = fn
         return self
 
-    def register_validation_func(self, fn: ValidationFnT) -> None:
+    def register_validation_func(self, fn: ValidationFnT) -> Self:
         if not hasattr(self, "state"):
             raise RuntimeError("Base class does not inherit StyledWidget")
         if not hasattr(self, "_validation_trigger"):
@@ -30,6 +32,7 @@ class ValidationMixin:
     
     def _validate_callback(self) -> None:
         data = self.serialize()
+        self.state: int
         if not data and self.is_optional():
             self.state.emit("")
             return

@@ -36,18 +36,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION exists_email(
-  p_email TEXT
-)
+CREATE OR REPLACE FUNCTION exists_email(p_email TEXT)
 RETURNS BOOLEAN AS $$
-DECLARE
-  exists_flag BOOLEAN;
-  normalized_email TEXT;
-BEGIN
   SELECT EXISTS (
     SELECT 1 FROM Users WHERE email = normalize_email(p_email)
-  ) INTO exists_flag;
-
-  RETURN exists_flag;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  );
+$$ LANGUAGE sql SECURITY DEFINER;

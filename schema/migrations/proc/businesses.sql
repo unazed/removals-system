@@ -149,3 +149,24 @@ BEGIN
     RETURN make_success_result();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION exists_business_crn(p_crn TEXT)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM Businesses WHERE crn_no = p_crn
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION exists_business_utr(p_utr TEXT)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM Businesses WHERE utr_no = p_utr
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION exists_business_vat(p_vat TEXT)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM Businesses WHERE vat_no = p_vat
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
