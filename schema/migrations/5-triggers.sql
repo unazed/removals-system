@@ -1,7 +1,7 @@
 CREATE TRIGGER TRG_BidActions__modify
 BEFORE INSERT OR UPDATE ON BidActions
 FOR EACH ROW
-EXECUTE FUNCTION bid_modify();
+EXECUTE FUNCTION bid_insert_update();
 
 CREATE TRIGGER TRG_Items__update
 BEFORE UPDATE ON Items

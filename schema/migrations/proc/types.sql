@@ -21,8 +21,7 @@ RETURNS TABLE(name TEXT) AS $$
   SELECT table_name
   FROM information_schema.tables
   WHERE table_schema = 'types'
-  AND table_type = 'BASE TABLE'
-  ORDER BY table_name;
+  AND table_type = 'BASE TABLE';
 $$
 LANGUAGE sql SECURITY DEFINER
 SET search_path = public;

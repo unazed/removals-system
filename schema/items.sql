@@ -1,17 +1,6 @@
-CREATE TABLE ItemCategories (
-  category_id   INTEGER GENERATED ALWAYS AS IDENTITY,
-  category_name TEXT NOT NULL,
-
-  CONSTRAINT PK_ItemCategories
-    PRIMARY KEY (category_id),
-
-  CONSTRAINT CHK_ItemCategories__length
-    CHECK (LENGTH(category_name) <= 60)
-);
-
 CREATE TABLE Items (
   item_id       INTEGER GENERATED ALWAYS AS IDENTITY,
-  category_id   INTEGER NOT NULL,
+  category_name TEXT NOT NULL,
   
   item_name     TEXT NOT NULL,
   item_description TEXT,
@@ -41,6 +30,7 @@ CREATE TABLE Items (
     CHECK (COALESCE(LENGTH(item_description) <= 240, TRUE)),
 
   CONSTRAINT FK_Items__category
-    FOREIGN KEY (category_id)
-    REFERENCES ItemCategories(category_id)
+    FOREIGN KEY (category_name)
+    REFERENCES types.ItemCategories(category_name)
+    ON DELETE RESTRICT
 );

@@ -1,3 +1,17 @@
+CREATE TABLE types.ItemCategories (
+  category_name TEXT NOT NULL,
+
+  CONSTRAINT PK_ItemCategories
+    PRIMARY KEY (category_name),
+
+  CONSTRAINT CHK_ItemCategories__length
+    CHECK (LENGTH(category_name) <= 60),
+  CONSTRAINT CHK_ItemCategories__valid
+    CHECK (category_name IN (
+      'living room', 'bathroom', 'bedroom', 'kitchen', 'garden'
+    ))
+);
+
 CREATE TABLE types.BusinessStaffRoles (
   staff_role        TEXT NOT NULL,
 

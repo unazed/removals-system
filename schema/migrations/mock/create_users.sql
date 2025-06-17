@@ -1,6 +1,6 @@
 DO $$
 DECLARE
-    reg_token TEXT;
+    reg_token result_t;
 BEGIN
     SET ROLE app_guest;
 
@@ -13,10 +13,10 @@ BEGIN
         'customer'
     );
 
-    IF reg_token IS NULL THEN
+    IF NOT reg_token.success THEN
         RAISE NOTICE 'User exists: alice@example.com';
     ELSE
-        RAISE NOTICE 'User created: alice@example.com, token: %', reg_token;
+        RAISE NOTICE 'User created: alice@example.com';
     END IF;
 
     reg_token := register_user(
@@ -27,10 +27,10 @@ BEGIN
         'supersecret123',
         'service-provider'
     );
-    IF reg_token IS NULL THEN
+    IF NOT reg_token.success THEN
         RAISE NOTICE 'User exists: john.doe@example.com';
     ELSE
-        RAISE NOTICE 'User created: john.doe@example.com, token: %', reg_token;
+        RAISE NOTICE 'User created: john.doe@example.com';
     END IF;
 END;
 $$;

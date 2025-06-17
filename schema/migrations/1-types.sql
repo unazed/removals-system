@@ -1,3 +1,11 @@
+INSERT INTO types.ItemCategories (category_name) VALUES
+  ('living room'),
+  ('bathroom'),
+  ('bedroom'),
+  ('kitchen'),
+  ('garden')
+ON CONFLICT DO NOTHING;
+
 INSERT INTO types.BusinessStaffRoles (staff_role) VALUES
   ('executive'),
   ('employee')

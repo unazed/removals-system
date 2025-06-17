@@ -1,3 +1,14 @@
+CREATE TABLE Auctions (
+  auction_id        INTEGER GENERATED ALWAYS AS IDENTITY,
+  min_bid           INTEGER
+
+  CONSTRAINT PK_Auctions
+    PRIMARY KEY (auction_id),
+
+  CONSTRAINT CHK_Auctions__min_bid
+    CHECK (min_bid > 0)
+);
+
 CREATE TABLE Orders (
   order_id          INTEGER GENERATED ALWAYS AS IDENTITY,
   created_by        INTEGER NOT NULL,
@@ -6,6 +17,8 @@ CREATE TABLE Orders (
   pickup_address    INTEGER NOT NULL,
   pickup_date       TIMESTAMP NOT NULL,
   delivery_address  INTEGER NOT NULL,
+
+  auction_id        INTEGER NOT NULL,
 
   created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,12 +44,16 @@ CREATE TABLE Orders (
   CONSTRAINT FK_Orders__delivery_address
     FOREIGN KEY (delivery_address)
     REFERENCES Addresses(address_id)
+    ON DELETE RESTRICT,
+  CONSTRAINT FK_Orders__auction
+    FOREIGN KEY (auction_id)
+    REFERENCES Auctions(auction_id)
     ON DELETE RESTRICT
 );
 
 CREATE TABLE BidActions (
   bid_action_id     INTEGER GENERATED ALWAYS AS IDENTITY,
-  order_id          INTEGER NOT NULL,
+  auction_id        INTEGER NOT NULL,
   bidder_id         INTEGER NOT NULL,
   bid_amount        DECIMAL(10, 2) NOT NULL,
   bid_timestamp     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,9 +65,9 @@ CREATE TABLE BidActions (
   CONSTRAINT CHK_BidActions__valid_bid
     CHECK (bid_amount > 0),
 
-  CONSTRAINT FK_BidActions__order
-    FOREIGN KEY (order_id)
-    REFERENCES Orders(order_id)
+  CONSTRAINT FK_BidActions__auction
+    FOREIGN KEY (auction_id)
+    REFERENCES Auctions(auction_id)
     ON DELETE CASCADE,
   CONSTRAINT FK_BidActions__bidder
     FOREIGN KEY (bidder_id)
