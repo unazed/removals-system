@@ -12,3 +12,7 @@ class UserAlreadyExistsError(AuthenticationError):
 
 class InvalidSessionError(AuthenticationError):
     """Raised whenever an invalid session token is passed to a procedure."""
+
+
+class InsufficientPermissionsError(AuthenticationError):
+    """Raised whenever a user has insufficient permissions to perform an action"""

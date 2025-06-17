@@ -9,13 +9,13 @@ from ..models.db_types import get_type_values
 from ..components.forms.util_validation import validate_age_over_18
 from ..components import PrimaryLabel
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..views import RoleSelectionView
     from ..components.forms import RoleSelectionForm
     from ..components import (
-        ComboBox, DatePicker, LineEdit, Form, ItemInput
+        ComboBox, LineEdit, Form, ItemInput
     )
 
 

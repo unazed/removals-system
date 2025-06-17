@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QLineEdit
-from PySide6.QtGui import QAction, QIcon
 
 from .styled_widget import StyledWidget
 from .validation_mixin import ValidationMixin

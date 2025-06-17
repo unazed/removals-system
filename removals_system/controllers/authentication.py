@@ -1,6 +1,10 @@
+from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import QObject, Signal
 
-from ..exceptions.auth_exceptions import InvalidCredentialsError
+from ..exceptions.auth_exceptions import (
+    InvalidCredentialsError,
+    InsufficientPermissionsError
+)
 from ..models.user import User, exists_email, forgot_password
 
 from typing import TYPE_CHECKING
@@ -61,6 +65,19 @@ class AuthenticationController(QObject):
         except InvalidCredentialsError:
             form.set_all_invalid()
             return
+        except InsufficientPermissionsError as e:
+            error_dialog = QMessageBox()
+            error_dialog.setWindowTitle("Issue signing in")
+            error_dialog.setText(
+                "Your account is either not approved, deleted or disabled. " +
+                "Sorry for any inconvenience, please contact us if you have " +
+                "any further questions."
+            )
+            error_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+            error_dialog.exec()
+            form.set_all_invalid()
+            return
+
         
         self.on_sign_in.emit(user)
 

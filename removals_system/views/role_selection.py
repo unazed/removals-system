@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QSizePolicy, QLabel,
-    QLayout, QSpinBox
+    QWidget, QHBoxLayout, QStackedLayout, QVBoxLayout, QLabel, QLayout
 )
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
@@ -12,6 +11,8 @@ from ..components import (
     Form, ItemInput
 )
 from ..config.constants import ASSET_MAP
+
+from typing import Sequence
 
 
 class RoleSelectionView(QWidget):
@@ -73,7 +74,7 @@ class RoleSelectionView(QWidget):
             None
         )
     
-    def create_service_provider_forms(self) -> tuple[RoleSelectionForm]:
+    def create_service_provider_forms(self) -> Sequence[RoleSelectionForm]:
         return (
             self.create_service_provider_detail_form(),
             self.create_service_provider_business_form(),

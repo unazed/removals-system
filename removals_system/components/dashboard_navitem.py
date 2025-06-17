@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
 from PySide6.QtGui import (
-    QPixmap, QMouseEvent, QColor, QPalette, QFontMetrics, QFont
+    QMouseEvent, QColor, QFontMetrics, QFont
 )
 from PySide6.QtCore import Signal, Qt
 

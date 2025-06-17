@@ -14,6 +14,9 @@ ERROR_GROUPS = {
     ),
     UserAlreadyExistsError: (
         "EMAIL_EXISTS",
+    ),
+    InsufficientPermissionsError: (
+        "PENDING_APPROVAL",
     )
 }
 

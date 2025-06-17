@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
-from typing import TYPE_CHECKING, Dict, Any, Optional, Callable
-from functools import partial
+from typing import TYPE_CHECKING
 import importlib
 
 if TYPE_CHECKING:
