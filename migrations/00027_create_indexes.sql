@@ -10,3 +10,13 @@ WHERE user_role = 'executive';
 CREATE INDEX IDX_BusinessResources__business_resource
 ON BusinessResources(business_id, resource_name);
 -- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP INDEX IDX_BusinessResources__business_resource;
+DROP INDEX UDX_BusinessStaff__single_executive;
+DROP INDEX IDX_Businesses__crn;
+DROP INDEX IDX_Cities__county;
+DROP INDEX IDX_Counties__country_name;
+DROP INDEX IDX_Countries__name;
+-- +goose StatementEnd
