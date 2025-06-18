@@ -1,0 +1,44 @@
+-- +goose Up
+-- +goose StatementBegin
+DO $$
+DECLARE
+    reg_token result_t;
+BEGIN
+    SET ROLE app_guest;
+
+    reg_token := register_user(
+        'Alice',
+        'Smith',
+        'asd@asd.asd',
+        DATE '1995-04-15',
+        'asd',
+        'customer'
+    );
+
+    IF NOT reg_token.success THEN
+        RAISE NOTICE 'User exists: alice@example.com';
+    ELSE
+        RAISE NOTICE 'User created: alice@example.com';
+    END IF;
+
+    reg_token := register_user(
+        'John',
+        'Doe',
+        'john.doe@example.com',
+        DATE '1970-01-01',
+        'supersecret123',
+        'service-provider'
+    );
+    IF NOT reg_token.success THEN
+        RAISE NOTICE 'User exists: john.doe@example.com';
+    ELSE
+        RAISE NOTICE 'User created: john.doe@example.com';
+    END IF;
+END;
+$$;
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+TRUNCATE TABLE Users CASCADE;
+-- +goose StatementEnd
