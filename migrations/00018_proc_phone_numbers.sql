@@ -42,7 +42,6 @@ BEGIN
     SELECT COALESCE(
         jsonb_agg(
             jsonb_build_object(
-                'phone_number_id', pn.phone_number_id,
                 'phone_extension', pn.phone_extension,
                 'phone_number', pn.phone_number,
                 'phone_number_type', upn.phone_number_type

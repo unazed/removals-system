@@ -51,7 +51,7 @@ BEGIN
   IF NOT FOUND THEN
     RETURN make_error_result(
       'INVALID_COUNTRY',
-      FORMAT('Invalid country: %', p_country)
+      FORMAT('Invalid country: %s', p_country)
     );
   END IF;
 
@@ -62,7 +62,7 @@ BEGIN
   IF NOT FOUND THEN
     RETURN make_error_result(
       'INVALID_COUNTY',
-      FORMAT('Invalid county: %', p_county)
+      FORMAT('Invalid county: %s', p_county)
     );
   END IF;
 
@@ -73,7 +73,7 @@ BEGIN
   IF NOT FOUND THEN
     RETURN make_error_result(
       'INVALID_CITY',
-      FORMAT('Invalid city: %', p_city)
+      FORMAT('Invalid city: %s', p_city)
     );
   END IF;
 
@@ -111,7 +111,6 @@ BEGIN
     SELECT COALESCE(
         jsonb_agg(
             jsonb_build_object(
-                'address_id', Addr.address_id,
                 'line_1', Addr.line_1,
                 'line_2', Addr.line_2,
                 'line_3', Addr.line_3,

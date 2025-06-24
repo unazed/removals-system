@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QFontDatabase, QFont
+from PySide6.QtGui import QFontDatabase
 
 from removals_system.controllers.navigation import NavigationController
 

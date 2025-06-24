@@ -131,8 +131,11 @@ def call_proc_result(
         proc_name, params, composites=("error_t", "result_t")
     ))
     if row.success:
-        if is_aggregate:
-            row.data = list(map(result_t, row.data))
+        if is_aggregate and row.data:
+            if isinstance(row.data[0], dict):
+                row.data = list(map(lambda kv: result_t(**kv), row.data))
+            else:
+                row.data = list(map(result_t, row.data))
         else:
             row.data = result_t(**(row.data or {}))
     return row
