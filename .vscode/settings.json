@@ -1,4 +1,10 @@
 {
-    "makefile.makePath": "C:\\Program Files (x86)\\GnuWin32\\bin",
-    "makefile.makefilePath": "C:\\Users\\administrator.CYLAB\\Desktop\\removals-system\\Makefile"
+    "makefile.makePath": "D:\\GNU\\bin\\make.exe",
+    "makefile.makefilePath": "Makefile",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "makefile.configureOnOpen": false
 }

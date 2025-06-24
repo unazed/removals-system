@@ -1,12 +1,16 @@
 import pytest
 import psycopg2
 import psycopg2.extensions
-import psycopg2.extras
 
+from removals_system.config import settings
+from removals_system.models.db import proc_register_user
+
+from typing import Generator
 from datetime import datetime
 import subprocess
 import logging
 import os
+import uuid
 
 g_logger = logging.getLogger(__name__)
 g_logger.setLevel(logging.INFO)
@@ -14,6 +18,7 @@ g_logger.setLevel(logging.INFO)
 TEST_DB_NAME = "test_db"
 DB_USERNAME = "postgres"
 DB_PASSWORD = "postgres"
+GOOSE_PATH = r"D:\Programming\removals-system\ext\goose.exe"
 
 
 def connect_db_if_exists(db_name: str):
@@ -36,11 +41,11 @@ def connect_db_if_exists(db_name: str):
         pass
 
 
-def create_db(db_name: str):
+def create_db(db_name: str, username: str = DB_USERNAME, password: str = DB_PASSWORD):
     conn = psycopg2.connect(
         database="postgres",
-        user=DB_USERNAME,
-        password=DB_PASSWORD
+        user=username,
+        password=password
     )
     try:
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -72,7 +77,7 @@ def call_goose(*args: str) -> None:
         g_logger.debug(f"running: `goose {' '.join(args)}`")
         
         proc = subprocess.Popen([
-            "goose",
+            GOOSE_PATH,
             "-table", "goose.migrations",
             *args
         ], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -89,34 +94,51 @@ def call_goose(*args: str) -> None:
         g_logger.debug("finished schema operation.")
 
 
+@pytest.fixture(scope="session", autouse=True)
+def override_db_config_for_tests():
+    settings.update_config(
+        dbname=TEST_DB_NAME,
+        user=DB_USERNAME,
+        password=DB_PASSWORD,
+        host="localhost",
+        port=5432,
+    )
+
+
 @pytest.fixture(scope="session")
-def db_setup():
+def db_setup() -> Generator[psycopg2.extensions.connection, None, None]:
     conn = create_db(TEST_DB_NAME)
     call_goose("up")
-    psycopg2.extras.register_composite("error_t", conn)
-    psycopg2.extras.register_composite("result_t", conn)
     yield conn
     conn.close()
     call_goose("reset")
 
 
 @pytest.fixture(scope="function")
-def db_cursor(db_setup):
+def db_cursor(db_setup) -> Generator[psycopg2.extensions.cursor, None, None]:
     yield db_setup.cursor()
     db_setup.rollback()
 
 
+@pytest.fixture(scope="function")
+def db_guest_cursor(db_setup) -> Generator[psycopg2.extensions.cursor, None, None]:
+    cur = db_setup.cursor()
+    cur.execute("set role app_guest;")
+    yield cur
+    db_setup.rollback()
+
+
 @pytest.fixture
-def with_valid_user(db_cursor):
+def with_valid_user(db_guest_cursor):
     def inner(role):
-        email, password = "a@a.com", "password"
-        db_cursor.callproc("register_user", (
-            "first_name",
-            "last_name",
-            email,
+        email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+        password = "password"
+        result = proc_register_user(
+            "first_name", "last_name",
+            email, password,
             datetime(2000, 1, 1).date(),
-            password,
             role,
-        ))
-        return email, password, db_cursor.fetchone()
+        )
+        assert result.success, "Registration should've been successful"
+        return email, password, result
     return inner
