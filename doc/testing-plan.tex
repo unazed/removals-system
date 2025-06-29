@@ -1,0 +1,102 @@
+\documentclass[journal]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstset{
+	basicstyle=\footnotesize\ttfamily,
+	breaklines=true,
+	frame=single,
+	captionpos=b,
+	tabsize=2,
+	showstringspaces=false,
+	commentstyle=\color{gray},
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	frame=none
+}
+
+\begin{document}
+	
+	\title{Testing Plan for the Removals System}
+	
+	\author{Mindaugas Taujanskas}
+	
+	\maketitle
+	
+	The chosen testing framework is \textsc{pytest}. No performance testing, code coverage, or comprehensive end-to-end testing will be considered. A virtual environment must be used to ensure replicability of the precise dependencies and configuration. A \textsc{Makefile} must supplement this virtual environment with the necessary rules to configure the software/database environment.
+	
+	\section{Database Integrity}
+	\subsection{\textsc{FT001:} Connection}
+	\begin{enumerate}
+		\item \textsc{TC01:} Connectivity\\
+		Ensure database connectivity is explicitly error-handled, and propagated to the appropriate layer which must be visible to the user.
+		\item \textsc{TC02:} Initialised schema\\
+		Ensure database schema is appropriately initialised to enable further program functionality; prevent subsequent execution of the software if not.
+	\end{enumerate}
+	
+	\section{User Authentication}
+	\subsection{\textsc{FT101:} Login}
+	\begin{enumerate}
+		\item \textsc{TC01:} Invalid credentials\\
+		Ensure the user cannot proceed to the dashboard with invalid credentials, displaying a clear error-state on failure.
+		\item \textsc{TC02:} Service-provider pending approval\\
+		Ensure a service provider who is not approved cannot proceed to the dashboard, displaying a clear indication as to why.
+		\item \textsc{TC03:} Deactivated user\\
+		Ensure any user who is deactivated (whether deleted/banned) cannot proceed to the dashboard, displaying a clear indication as to why.
+	\end{enumerate}
+	
+	\subsection{\textsc{FT102:} Registration}
+	\begin{enumerate}
+		\item \textsc{TC01:} Invalid fields\textsuperscript{1} \label{tc01}\\
+		Ensure required fields which are empty, misformatted fields, or otherwise fields violating their specific validation constraints are clearly identified, and propagated to the user clearly, preventing the registration process.
+		
+		\item \textsc{TC02:} Existing email \label{tc02}\\
+		Ensure that duplicate registration with the same email (wrt. its canonical form\textsuperscript{2}) is disallowed, and propagated to the user clearly, preventing the registration process.
+	\end{enumerate}
+	
+	\vspace{1em}
+	
+	\noindent\textsuperscript{1} \textsc{TC01} applies broadly, as registration branches depending on whether the user selects customer or service-provider registration, and the subsequent fields have a plethora of trivial validation constraints dictated by the database schema.\\
+	\textsuperscript{2} \textsc{TC02} refers to the canonical form of an email, meaning that an email such as \texttt{alice+1@example.com} will be reduced to \texttt{alice@example.com}, as they refer to the same source email address, and thus must not be allowed for registration.
+	
+	\section{Database Access Controls}
+	\subsection{\textsc{FT201:} Raw table access}
+	\begin{enumerate}
+		\item \textsc{TC01:} No DDL/DML operations\\
+		Ensure the top-level application layer cannot execute DDL/DML SQL statements against the database.
+		\item \textsc{TC02:} Access to exposed SQL procedures\\
+		Ensure the top-level application layer can execute exposed SQL procedures.
+	\end{enumerate}
+	\subsection{\textsc{FT202:} Schema access}
+	\begin{enumerate}
+		\item \textsc{TC02:} Restricted to public schema\\
+		Ensure the user cannot execute SQL procedures outside of the publicly exposed schema.
+	\end{enumerate}
+	
+	\section{User Models}
+	Note that for each user model, there will tend to be subclassifications which are hard-set by the database, e.g. phone numbers must be identified as for either home/work, therefore these cases must also be accounted for.
+	
+	\subsection{\textsc{FT301:} Phone numbers}
+	\begin{enumerate}
+		\item \textsc{TC01:} Creation\\
+		Ensure that phone numbers can be created and attributed to a valid registered user.
+		\item \textsc{TC02:} Retrieval\\
+		Ensure that a user's phone numbers can be retrieved accurately.
+	\end{enumerate}
+	
+	\subsection{\textsc{FT302:} Addresses}
+	\begin{enumerate}
+		\item \textsc{TC01:} Creation\\
+		Ensure that addresses can be created and attributed to a valid registered user.
+		\item \textsc{TC02:} Retrieval\\
+		Ensure that a user's addresses can be retrieved accurately.
+	\end{enumerate}
+	
+	\section{User Acceptance}
+	A simple user-flow should be demonstrable of both customer registration and subsequent sign-in to display the user dashboard. Successful service-provider registration should display a pending approval view, and sign-in should not succeed.
+\end{document}
