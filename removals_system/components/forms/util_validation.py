@@ -1,6 +1,6 @@
 from PySide6.QtCore import QDate
 
-from typing import Callable, TYPE_CHECKING
+from typing import Callable
 
 import re
 

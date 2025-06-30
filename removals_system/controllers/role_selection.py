@@ -87,9 +87,9 @@ class RoleSelectionController(QObject):
         business = Business.create_for_user(
             user.token,
             business_name=form_data['business-name'],
-            crn_no=form_data['crn'],
-            vat_no=form_data['vat-number'],
-            utr_no=form_data['utr-number'],
+            crn_no=None or form_data['crn'],
+            vat_no=form_data['vat-number'] or None,
+            utr_no=form_data['utr-number'] or None,
             num_employees=form_data['nr-employees']
         )
         for qty_rsrc, rsrc_name in form_data['items']:
