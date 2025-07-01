@@ -5,8 +5,8 @@ CREATE TABLE Businesses (
 
   business_name   TEXT NOT NULL,
   crn_no          TEXT UNIQUE NOT NULL,
-  vat_no          TEXT UNIQUE,
-  utr_no          TEXT UNIQUE,
+  vat_no          TEXT,
+  utr_no          TEXT,
   num_employees   INTEGER NOT NULL,
 
   CONSTRAINT PK_Businesses
@@ -19,9 +19,9 @@ CREATE TABLE Businesses (
   CONSTRAINT CHK_Businesses__crn_length
     CHECK (LENGTH(crn_no) = 8),
   CONSTRAINT CHK_Businesses__vat_length
-    CHECK (LENGTH(vat_no) = 11),
+    CHECK (COALESCE(LENGTH(vat_no) = 11, TRUE)),
   CONSTRAINT CHK_Businesses__utr_no
-    CHECK (LENGTH(utr_no) = 10)
+    CHECK (COALESCE(LENGTH(utr_no) = 10, TRUE))
 );
 
 CREATE TABLE BusinessStaff (

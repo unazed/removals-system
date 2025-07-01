@@ -96,8 +96,11 @@ def call_proc(
                     result = [i[0] for i in result]
                 return result
             return cur.fetchone()
-    finally:
+    except psycopg2.errors.OperationalError:
+        raise
+    except:
         conn.close()
+        raise
 
 
 @overload

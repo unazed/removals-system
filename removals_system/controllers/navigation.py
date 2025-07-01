@@ -1,6 +1,11 @@
-from PySide6.QtWidgets import QMainWindow, QStackedWidget
+from PySide6.QtWidgets import (
+    QMainWindow, QStackedWidget, QMessageBox, QApplication
+)
+import psycopg2
+
 from typing import TYPE_CHECKING
 import importlib
+import sys
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
@@ -42,7 +47,24 @@ class NavigationController(QMainWindow):
             }
         }
 
+        self._register_sysexcept_handler()
         self.show_view(default_view)
+
+    def _register_sysexcept_handler(self) -> None:
+        def handler(exctype, value, traceback) -> None:
+            if QApplication.instance() is None:
+                sys.__excepthook__(exctype, value, traceback)
+                return
+            if exctype is psycopg2.errors.OperationalError:
+                QMessageBox.critical(
+                    None,
+                    "Database Error",
+                    "A database error occurred, contact your database " +
+                    "administrator to ensure the database is correctly " +
+                    "configured, we apologise for any inconvenience."
+                )
+            sys.__excepthook__(exctype, value, traceback)
+        sys.excepthook = handler
 
     def _load_view_class(self, which_view: str) -> type:
         view_params = self.view_map[which_view]

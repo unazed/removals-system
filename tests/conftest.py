@@ -46,11 +46,15 @@ def connect_db_if_exists(db_name: str):
 
 
 def create_db(db_name: str, username: str = DB_USERNAME, password: str = DB_PASSWORD):
-    conn = psycopg2.connect(
-        database="postgres",
-        user=username,
-        password=password
-    )
+    try:
+        conn = psycopg2.connect(
+            database="postgres",
+            user=username,
+            password=password
+        )
+    except psycopg2.errors.OperationalError:
+        g_logger.debug("failed to connect to database")
+        raise
     try:
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
