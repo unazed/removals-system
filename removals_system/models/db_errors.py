@@ -17,6 +17,7 @@ ERROR_GROUPS = {
     ),
     InsufficientPermissionsError: (
         "PENDING_APPROVAL",
+        "INSUFFICIENT_PERMISSIONS"
     )
 }
 

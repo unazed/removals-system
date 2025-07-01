@@ -78,7 +78,6 @@ class AuthenticationController(QObject):
             form.set_all_invalid()
             return
 
-        
         self.on_sign_in.emit(user)
 
     def handle_signup(self, form: "SignupForm"):

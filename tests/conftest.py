@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extensions
 
 from removals_system.config import settings
-from removals_system.models.db import proc_register_user
+from removals_system.models import db
 
 from typing import Generator
 from datetime import datetime
@@ -18,7 +18,11 @@ g_logger.setLevel(logging.INFO)
 TEST_DB_NAME = "test_db"
 DB_USERNAME = "postgres"
 DB_PASSWORD = "postgres"
-GOOSE_PATH = r"D:\Programming\removals-system\ext\goose.exe"
+GOOSE_PATH = r"C:\Users\administrator.CYLAB\Desktop\removals-system\ext\goose.exe"
+
+
+def gen_rand_alpha(length: int) -> str:
+    return uuid.uuid4().hex[:length]
 
 
 def connect_db_if_exists(db_name: str):
@@ -127,13 +131,12 @@ def db_guest_cursor(db_setup) -> Generator[psycopg2.extensions.cursor, None, Non
     yield cur
     db_setup.rollback()
 
-
 @pytest.fixture
 def with_valid_user(db_guest_cursor):
     def inner(role):
-        email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+        email = f"user_{gen_rand_alpha(8)}@example.com"
         password = "password"
-        result = proc_register_user(
+        result = db.proc_register_user(
             "first_name", "last_name",
             email, password,
             datetime(2000, 1, 1).date(),
@@ -142,3 +145,18 @@ def with_valid_user(db_guest_cursor):
         assert result.success, "Registration should've been successful"
         return email, password, result
     return inner
+
+
+@pytest.fixture
+def with_valid_business(db_guest_cursor, with_valid_user):
+    *user_details, session = with_valid_user("service-provider")
+    fetch_result = db.proc_create_business(
+        session.data.token,
+        business_name="Sample business name",
+        vat_no=gen_rand_alpha(length=11),
+        crn_no=(crn_no := gen_rand_alpha(length=8)),
+        utr_no=gen_rand_alpha(length=10),
+        num_employees=2
+    )
+    assert fetch_result.success
+    return *user_details, session, crn_no

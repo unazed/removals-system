@@ -17,6 +17,11 @@ BEGIN
 
     IF user_session IS NULL THEN
         RETURN make_error_result('INVALID_SESSION', 'Invalid session token');
+    ELSIF user_session->>'role' <> 'service-provider' THEN
+        RETURN make_error_result(
+            'INSUFFICIENT_PERMISSIONS',
+            'Invalid role for creating business'
+        );
     END IF;
 
     INSERT INTO Businesses(business_name, crn_no, vat_no, utr_no, num_employees)
@@ -98,7 +103,7 @@ BEGIN
     IF stored_business_id IS NULL THEN
         RETURN make_error_result(
             'INVALID_BUSINESS',
-            'Invalid business identifier (1)'
+            'Invalid business identifier'
         );
     END IF;
 
